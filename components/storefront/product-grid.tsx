@@ -1,4 +1,9 @@
+"use client";
+
 import Image from "next/image";
+import { toast } from "react-toastify";
+
+import { useCart } from "@/lib/cart-context";
 
 type Product = {
   id: string;
@@ -19,6 +24,7 @@ function formatPrice(price: string) {
 }
 
 export function ProductGrid({ products }: { products: Product[] }) {
+  const { addItem, totalItems } = useCart();
   if (products.length === 0) {
     return (
       <div className="rounded-2xl border border-dashed border-border bg-muted/30 px-6 py-16 text-center">
@@ -39,7 +45,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
             product.inStock ? "" : "opacity-75"
           }`}
         >
-          <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+          <div className="relative aspect-4/3 overflow-hidden bg-muted">
             {product.imageUrl ? (
               <Image
                 src={product.imageUrl}
@@ -85,9 +91,22 @@ export function ProductGrid({ products }: { products: Product[] }) {
               <button
                 type="button"
                 disabled={!product.inStock}
+                onClick={() => {
+                  if (addItem(product)) {
+                    toast.success("Added to cart");
+                  } else {
+                    toast.warning(
+                      "Cart's getting full — check out or split into another order",
+                    );
+                  }
+                }}
                 className="rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
               >
-                {product.inStock ? "Buy now" : "Unavailable"}
+                {product.inStock
+                  ? totalItems > 0
+                    ? "Add to cart"
+                    : "Buy now"
+                  : "Unavailable"}
               </button>
             </div>
           </div>

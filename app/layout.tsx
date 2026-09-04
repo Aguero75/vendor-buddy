@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ToastContainer } from "react-toastify";
+import { CartProvider } from "@/lib/cart-context";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -28,7 +29,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
       >
         <body className="min-h-full flex flex-col">
-          {children}
+          <CartProvider>{children}</CartProvider>
           <ToastContainer />
         </body>
       </html>

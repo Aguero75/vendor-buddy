@@ -1,4 +1,5 @@
 import { CategoryPills } from "@/components/storefront/category-pills";
+import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { prisma } from "@/lib/prisma";
 
@@ -15,7 +16,7 @@ export default async function Home({
     : params.category;
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
-    select: { id: true, businessName: true, motto: true },
+    select: { id: true, businessName: true, motto: true, whatsappNumber: true },
   });
 
   const categoryRows = vendor
@@ -105,6 +106,7 @@ export default async function Home({
           />
         </section>
       </div>
+      <CartDrawer whatsappNumber={vendor?.whatsappNumber ?? ""} />
     </main>
   );
 }
