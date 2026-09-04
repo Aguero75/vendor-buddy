@@ -1,0 +1,67 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Vendor {
+  id               String            @id @default(cuid())
+  businessName     String
+  logoUrl          String?
+  motto            String?
+  whatsappNumber   String
+  createdAt        DateTime          @default(now())
+  products         Product[]
+  receipts         Receipt[]
+  receiptLineItems ReceiptLineItem[]
+}
+
+model Product {
+  id          String            @id @default(cuid())
+  vendorId    String
+  vendor      Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  name        String
+  description String?
+  category    String?
+  price       Decimal           @db.Decimal(10, 2)
+  imageUrl    String?
+  inStock     Boolean           @default(true)
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  lineItems   ReceiptLineItem[]
+
+  @@index([vendorId])
+  @@index([vendorId, category])
+}
+
+model Receipt {
+  id           String            @id @default(cuid())
+  vendorId     String
+  vendor       Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  customerName String?
+  total        Decimal           @db.Decimal(10, 2)
+  createdAt    DateTime          @default(now())
+  lineItems    ReceiptLineItem[]
+
+  @@index([vendorId])
+  @@index([vendorId, createdAt])
+}
+
+model ReceiptLineItem {
+  id           String   @id @default(cuid())
+  vendorId     String
+  vendor       Vendor   @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  receiptId    String
+  receipt      Receipt  @relation(fields: [receiptId], references: [id], onDelete: Cascade)
+  productId    String?
+  product      Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+  nameSnapshot String
+  quantity     Int
+  unitPrice    Decimal  @db.Decimal(10, 2)
+
+  @@index([vendorId])
+  @@index([receiptId])
+  @@index([productId])
+}
