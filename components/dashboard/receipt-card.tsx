@@ -115,45 +115,6 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
     }
   }
 
-  async function handleEmail() {
-    const email = window.prompt("Email this receipt to:")?.trim();
-    if (!email) {
-      return;
-    }
-
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast.error("Couldn't send email — check the address and try again");
-      return;
-    }
-
-    setIsWorking(true);
-    try {
-      const image = await createImage();
-      const response = await fetch("/api/receipts/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-receipt-id": receipt.id,
-        },
-        body: JSON.stringify({ email, image }),
-      });
-      const result = (await response.json()) as {
-        ok?: boolean;
-        message?: string;
-      };
-
-      if (!response.ok || !result.ok) {
-        throw new Error(result.message);
-      }
-
-      toast.success("Receipt sent");
-    } catch {
-      toast.error("Couldn't send email — check the address and try again");
-    } finally {
-      setIsWorking(false);
-    }
-  }
-
   return (
     <div className="space-y-5">
       <div
@@ -224,14 +185,6 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
           disabled={isWorking}
         >
           Share
-        </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleEmail}
-          disabled={isWorking}
-        >
-          Email receipt
         </Button>
       </div>
     </div>

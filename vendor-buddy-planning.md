@@ -30,7 +30,7 @@ See `vendor-buddy-project-context.md` for the reasoning behind each decision bel
 3. Sets quantity, adjusts price if it was bargained
 4. Can add multiple line items to one receipt
 5. Saves → receipt persists to DB, feeds analytics → success/error toast
-6. From the saved receipt: **Download** (image, via `dom-to-image-more`), **Share to WhatsApp** (Web Share API, falls back to download on unsupported browsers), **Email** (prompts for address, sends via Resend) — each action confirms or reports failure via toast
+6. From the saved receipt: **Download** (image, via `dom-to-image-more`) and **Share to WhatsApp** (Web Share API, falls back to download on unsupported browsers) — each action confirms or reports failure via toast
 
 ### Analytics (Overview / Receipts page)
 
@@ -112,26 +112,24 @@ Keep the encoded URL comfortably under ~1,500 characters.
 
 One `<ToastContainer />` mounted once at the root layout (`react-toastify@11.1.0`). Toasts are for **confirming an action the user just took**, not for passive/background state. Clerk's own sign-in/sign-up error states are left alone — no duplicate toasts on top of Clerk's UI.
 
-| Surface    | Trigger                                   | Toast type | Example message                          |
-|------------|--------------------------------------------|------------|-------------------------------------------|
-| Storefront | Item added to cart                         | success    | "Added to cart"                           |
-| Storefront | Item removed from cart                     | info       | "Removed from cart"                       |
-| Storefront | Cart hits the ~12–15 item cap               | warning    | "Cart's getting full — check out or split into another order" |
-| Storefront | WhatsApp checkout link fails to open        | error      | "Couldn't open WhatsApp — try again"      |
-| Admin      | Product created / updated                  | success    | "Product saved"                           |
-| Admin      | Product create/update fails (validation, network) | error | "Couldn't save product — check the fields and try again" |
-| Admin      | Product deleted                            | success    | "Product deleted"                         |
-| Admin      | Stock toggled                              | success    | "Marked in stock" / "Marked out of stock" |
-| Admin      | Settings saved                             | success    | "Settings updated"                        |
-| Admin      | Settings save fails                        | error      | "Couldn't update settings — try again"    |
-| Admin      | Receipt saved                              | success    | "Receipt saved"                           |
-| Admin      | Receipt save fails                         | error      | "Couldn't save receipt — try again"       |
-| Admin      | Receipt image downloaded                   | success    | "Receipt downloaded"                      |
-| Admin      | Share sheet unsupported → fell back to download | info  | "Sharing isn't supported here — downloaded instead" |
-| Admin      | Receipt emailed successfully               | success    | "Receipt sent"                            |
-| Admin      | Receipt email fails (Resend error, bad address) | error | "Couldn't send email — check the address and try again" |
-| Admin      | Image upload (product/logo) succeeds       | success    | "Image uploaded"                          |
-| Admin      | Image upload fails                         | error      | "Upload failed — try a different image"   |
+| Surface    | Trigger                                           | Toast type | Example message                                               |
+| ---------- | ------------------------------------------------- | ---------- | ------------------------------------------------------------- |
+| Storefront | Item added to cart                                | success    | "Added to cart"                                               |
+| Storefront | Item removed from cart                            | info       | "Removed from cart"                                           |
+| Storefront | Cart hits the ~12–15 item cap                     | warning    | "Cart's getting full — check out or split into another order" |
+| Storefront | WhatsApp checkout link fails to open              | error      | "Couldn't open WhatsApp — try again"                          |
+| Admin      | Product created / updated                         | success    | "Product saved"                                               |
+| Admin      | Product create/update fails (validation, network) | error      | "Couldn't save product — check the fields and try again"      |
+| Admin      | Product deleted                                   | success    | "Product deleted"                                             |
+| Admin      | Stock toggled                                     | success    | "Marked in stock" / "Marked out of stock"                     |
+| Admin      | Settings saved                                    | success    | "Settings updated"                                            |
+| Admin      | Settings save fails                               | error      | "Couldn't update settings — try again"                        |
+| Admin      | Receipt saved                                     | success    | "Receipt saved"                                               |
+| Admin      | Receipt save fails                                | error      | "Couldn't save receipt — try again"                           |
+| Admin      | Receipt image downloaded                          | success    | "Receipt downloaded"                                          |
+| Admin      | Share sheet unsupported → fell back to download   | info       | "Sharing isn't supported here — downloaded instead"           |
+| Admin      | Image upload (product/logo) succeeds              | success    | "Image uploaded"                                              |
+| Admin      | Image upload fails                                | error      | "Upload failed — try a different image"                       |
 
 Exact wording can flex during build; the trigger/type pairing is what matters and should stay consistent across admin and storefront.
 
@@ -145,7 +143,7 @@ Superseded by the detailed phase breakdown in `vendor-buddy-build-phases.md`, wh
 4. **Cart + WhatsApp checkout** — client-side cart state, message formatting/truncation logic, `wa.me` handoff, cart toasts
 5. **Settings page** — business name/logo/motto/WhatsApp number (needed before receipts, since receipts show vendor branding), save toast
 6. **Receipt generator** — dropdown + custom item, save to DB, receipt history list, save toast
-7. **Receipt actions** — download as image (`dom-to-image-more`, mind the CORS/`crossOrigin` gotcha on the logo), Web Share API for WhatsApp (+ desktop fallback), Resend email integration, toasts on each
+7. **Receipt actions** — download as image (`dom-to-image-more`, mind the CORS/`crossOrigin` gotcha on the logo), Web Share API for WhatsApp (+ desktop fallback), toasts on each
 8. **Analytics** — Recharts on Overview/Receipts, driven by saved Receipt data
 9. **Polish** — empty states, mobile responsiveness pass (vendors will mostly use this on phones), loading states, toast wording pass
 
@@ -164,7 +162,6 @@ prisma@7.10.0
 @prisma/client@7.10.0
 uploadthing@7.7.4
 @uploadthing/react@7.3.3
-resend@6.25.0
 recharts@3.10.1
 dom-to-image-more
 react-toastify@11.1.0

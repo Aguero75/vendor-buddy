@@ -39,7 +39,7 @@ export default async function ReceiptDetailPage({
           </Link>
           <h1 className="text-3xl font-semibold tracking-tight">Receipt</h1>
           <p className="text-muted-foreground">
-            Download, share, or email this saved receipt.
+            Download and share this saved receipt.
           </p>
         </header>
 

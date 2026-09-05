@@ -13,7 +13,7 @@ This project is deployed as one instance per vendor. Each deployment has its own
 - Receipt search by customer, item, or total
 - Paginated product and receipt lists
 - Sales analytics
-- Receipt image download, sharing, and email delivery
+- Receipt image download and sharing
 - Business profile, logo, address, social links, and map settings
 - Single-admin Clerk authentication with sign-up locked after the first account
 
@@ -25,7 +25,6 @@ This project is deployed as one instance per vendor. Each deployment has its own
 - Clerk for authentication
 - Prisma 7 with PostgreSQL/Neon
 - UploadThing for product and business logo images
-- Resend for emailed receipts
 - Recharts for analytics
 
 ## Requirements
@@ -35,7 +34,6 @@ This project is deployed as one instance per vendor. Each deployment has its own
 - PostgreSQL database, such as Neon
 - Clerk application
 - UploadThing application
-- Resend account if receipt email is required
 
 ## Local Setup
 
@@ -57,7 +55,7 @@ This project is deployed as one instance per vendor. Each deployment has its own
    cp .env.example .env.local
    ```
 
-3. Replace the values in `.env.local` with credentials from your own Clerk, Neon/Postgres, UploadThing, and Resend projects. Never commit `.env.local` or real credentials.
+3. Replace the values in `.env.local` with credentials from your own Clerk, Neon/Postgres, and UploadThing projects. Never commit `.env.local` or real credentials.
 
 4. Generate the Prisma client and apply migrations:
 
@@ -84,15 +82,13 @@ This project is deployed as one instance per vendor. Each deployment has its own
 
 The required variable names are listed in `.env.example`:
 
-| Variable                            | Purpose                                    |
-| ----------------------------------- | ------------------------------------------ |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key                          |
-| `CLERK_SECRET_KEY`                  | Clerk server key                           |
-| `ADMIN_CLERK_USER_ID`               | Optional explicit admin user ID            |
-| `DATABASE_URL`                      | PostgreSQL connection string               |
-| `UPLOADTHING_TOKEN`                 | UploadThing server token                   |
-| `RESEND_API_KEY`                    | Resend API key for emailed receipts        |
-| `RESEND_FROM_EMAIL`                 | Verified sender address for receipt emails |
+| Variable                            | Purpose                         |
+| ----------------------------------- | ------------------------------- |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key               |
+| `CLERK_SECRET_KEY`                  | Clerk server key                |
+| `ADMIN_CLERK_USER_ID`               | Optional explicit admin user ID |
+| `DATABASE_URL`                      | PostgreSQL connection string    |
+| `UPLOADTHING_TOKEN`                 | UploadThing server token        |
 
 When `ADMIN_CLERK_USER_ID` is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration.
 
@@ -149,6 +145,6 @@ For a Vercel deployment:
 2. Add the environment variables from `.env.local` to the Vercel project settings.
 3. Use a production PostgreSQL database and run `npx prisma migrate deploy` during deployment or as a release step.
 4. Configure the production URL in Clerk and UploadThing.
-5. Confirm that the UploadThing and Resend sender domains are configured for production.
+5. Confirm that UploadThing is configured for the production environment.
 
 Before a production launch, rotate any credentials exposed during development and verify that no secrets are committed to Git.

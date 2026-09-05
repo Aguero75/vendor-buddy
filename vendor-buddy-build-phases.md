@@ -154,7 +154,7 @@ Companion to `vendor-buddy-project-context.md`, `vendor-buddy-planning.md`, and 
 
 ---
 
-### Phase 8 — Receipt actions: export, share, email
+### Phase 8 — Receipt actions: export and share
 
 **Build:**
 
@@ -162,8 +162,7 @@ Companion to `vendor-buddy-project-context.md`, `vendor-buddy-planning.md`, and 
 - `dom-to-image-more` export to PNG, **with `crossOrigin="anonymous"` on the logo `<img>` tag** — this is the single most likely silent failure in the whole app, verify it explicitly, don't assume
 - Download action
 - Share action via `navigator.share`, with `navigator.canShare` fallback to download
-- Email action via a Resend-backed Server Action / route handler
-- Toasts for all three actions per the matrix, including the "shared unsupported, fell back to download" info toast
+- Toasts for both actions, including the "shared unsupported, fell back to download" info toast
 
 **Depends on:** Phase 7 (a real saved receipt to export), Phase 6 (real logo URL to test the CORS behavior against — testing this with a placeholder image won't catch the bug).
 
@@ -171,8 +170,6 @@ Companion to `vendor-buddy-project-context.md`, `vendor-buddy-planning.md`, and 
 
 - [ ] Export a receipt for a vendor with a logo actually uploaded via UploadThing (not a local/placeholder image) and confirm the logo appears in the exported PNG — this is the specific check that catches a missing `crossOrigin` attribute
 - [ ] Test the share action on both a mobile browser (where `navigator.share` with files should work) and a desktop browser (where it should cleanly fall back to download with the correct info toast, not throw)
-- [ ] Send a test email and confirm the attachment is a valid, openable PNG, not a corrupted or empty file
-- [ ] Deliberately send to a malformed email address and confirm the specific error toast appears rather than a generic failure or a silent no-op
 
 ---
 

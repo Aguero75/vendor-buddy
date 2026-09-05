@@ -16,9 +16,9 @@ Per vendor:
   └──────────────┬───────────────┘
                  │
      ┌───────────┼────────────┬───────────────┬──────────────┐
-     ▼           ▼            ▼               ▼              ▼
-  Neon DB    Clerk (auth)  UploadThing     Resend         (client only:
- (1 per       shared        (images)      (email)          dom-to-image-more,
+      ▼           ▼            ▼                            ▼
+    Neon DB    Clerk (auth)  UploadThing                  (client only:
+   (1 per       shared        (images)                    dom-to-image-more,
   vendor)     Clerk app,                                    react-toastify)
               one user per
               vendor instance
@@ -80,7 +80,6 @@ Because there's no separate table, there's nothing to keep in sync — a categor
 4. That blob feeds three actions:
    - **Download:** trigger a browser download of the blob directly.
    - **Share:** pass the blob as a `File` into `navigator.share({ files: [...] })`; if `navigator.canShare` returns false (desktop, mostly), fall back to the download path and toast accordingly ("Sharing isn't supported here — downloaded instead").
-   - **Email:** the blob (or a base64 version of it) is sent to a Server Action / route handler that calls Resend with the image as an attachment.
 5. Each of the three actions resolves to a toast — success or a specific failure reason (network, unsupported API, bad email address) — per the matrix in planning.md.
 
 ## 6. Notification architecture (react-toastify)
@@ -124,6 +123,6 @@ prisma/
 
 ## 8. Error-handling conventions
 
-- Server Actions never throw for *expected* failure modes (validation errors, "not found", third-party API errors from Resend/UploadThing) — they return `{ ok: false, message }` so the caller can toast a specific, useful message instead of a generic error boundary.
+- Server Actions never throw for _expected_ failure modes (validation errors, "not found", or third-party API errors) — they return `{ ok: false, message }` so the caller can toast a specific, useful message instead of a generic error boundary.
 - Unexpected errors (a genuine bug, a DB connection drop) are allowed to throw and surface via Next.js error boundaries — those aren't toast-worthy, they're app-breaking, and should look different to the admin than "your save didn't go through, try again."
 - This distinction is what section-by-section verification in `vendor-buddy-build-phases.md` checks for: each phase should end with both the happy path and at least one deliberate failure path (bad input, simulated network failure) producing the correct toast, not a crash.
