@@ -2,6 +2,8 @@ import { DashboardHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({
   children,
 }: Readonly<{

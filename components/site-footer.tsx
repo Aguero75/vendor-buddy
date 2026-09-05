@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { AtSign, Globe2, MapPin, MessageCircle, Music2 } from "lucide-react";
+import Image from "next/image";
+import facebook from "@/public/facebook-color-svgrepo-com.svg";
+import instagram from "@/public/instagram-1-svgrepo-com.svg";
+import tiktok from "@/public/tiktok-logo-logo-svgrepo-com.svg";
+import whatsapp from "@/public/whatsapp-svgrepo-com.svg";
+import location from "@/public/location-svgrepo-com (1).svg";
+import direction from "@/public/location-pin-svgrepo-com.svg";
 
 export function SiteFooter({
   businessName = "Vendor Buddy",
@@ -19,9 +25,9 @@ export function SiteFooter({
   tiktokUrl?: string | null;
 }) {
   const socialLinks = [
-    { href: instagramUrl, label: "Instagram", icon: AtSign },
-    { href: facebookUrl, label: "Facebook", icon: Globe2 },
-    { href: tiktokUrl, label: "TikTok", icon: Music2 },
+    { href: instagramUrl, label: "Instagram", icon: instagram },
+    { href: facebookUrl, label: "Facebook", icon: facebook },
+    { href: tiktokUrl, label: "TikTok", icon: tiktok },
   ].filter((link) => link.href);
 
   return (
@@ -49,7 +55,11 @@ export function SiteFooter({
           <div className="space-y-4 text-sm text-muted-foreground">
             {address ? (
               <div className="flex items-start gap-3">
-                <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
+                <Image
+                  src={direction}
+                  alt="Get directions"
+                  className="size-4"
+                />
                 <span className="min-w-0 leading-6">{address}</span>
               </div>
             ) : null}
@@ -60,7 +70,7 @@ export function SiteFooter({
                 rel="noreferrer"
                 className="flex items-center gap-3 font-semibold text-foreground transition-colors hover:text-primary"
               >
-                <MapPin className="size-4 shrink-0 text-primary" />
+                <Image src={location} alt="location pin" className="size-4" />
                 Get directions
               </a>
             ) : null}
@@ -71,7 +81,7 @@ export function SiteFooter({
                 rel="noreferrer"
                 className="flex items-center gap-3 transition-colors hover:text-foreground"
               >
-                <MessageCircle className="size-4 shrink-0 text-primary" />
+                <Image src={whatsapp} alt={whatsappNumber} className="size-4" />
                 Chat on WhatsApp
               </a>
             ) : null}
@@ -93,7 +103,7 @@ export function SiteFooter({
                   aria-label={label}
                   className="inline-flex size-10 items-center justify-center rounded-full border border-border bg-background text-muted-foreground transition-colors hover:border-primary hover:text-primary"
                 >
-                  <Icon className="size-4" />
+                  <Image src={Icon} alt={label} className="size-4" />
                 </a>
               ))}
             </div>

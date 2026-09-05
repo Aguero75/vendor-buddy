@@ -1,9 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
+import { UploadButton } from "@uploadthing/react";
 
+import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { Button } from "@/components/ui/button";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 
@@ -21,10 +24,13 @@ type ProductFormProps = {
 
 export function ProductForm({ categories, product }: ProductFormProps) {
   const router = useRouter();
+  const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
   const [isPending, startTransition] = useTransition();
   const isEditing = Boolean(product);
 
   function handleSubmit(formData: FormData) {
+    formData.set("imageUrl", imageUrl);
+
     startTransition(async () => {
       const result = product
         ? await updateProduct(formData)
@@ -44,6 +50,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
   return (
     <form action={handleSubmit} className="space-y-6">
       {product ? <input type="hidden" name="id" value={product.id} /> : null}
+      <input type="hidden" name="imageUrl" value={imageUrl} />
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="space-y-2 sm:col-span-2">
@@ -98,16 +105,47 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           />
         </label>
 
-        <label className="space-y-2 sm:col-span-2">
-          <span className="text-sm font-medium">Image URL</span>
-          <input
-            type="url"
-            name="imageUrl"
-            defaultValue={product?.imageUrl ?? ""}
-            placeholder="https://..."
-            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+        <div className="space-y-3 sm:col-span-2">
+          <div>
+            <span className="text-sm font-medium">Product photo</span>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Upload an image up to 8MB.
+            </p>
+          </div>
+          {imageUrl ? (
+            <div className="relative size-28 overflow-hidden rounded-xl border border-border bg-muted">
+              <Image
+                src={imageUrl}
+                alt="Product preview"
+                fill
+                unoptimized
+                crossOrigin="anonymous"
+                className="object-cover"
+              />
+            </div>
+          ) : null}
+          <UploadButton<OurFileRouter, "productImageUploader">
+            endpoint="productImageUploader"
+            onClientUploadComplete={(files) => {
+              const uploadedUrl = files[0]?.ufsUrl;
+
+              if (uploadedUrl) {
+                setImageUrl(uploadedUrl);
+                toast.success("Product image uploaded");
+              }
+            }}
+            onUploadError={(error) => {
+              toast.error(
+                error.message || "Upload failed - try a different image",
+              );
+            }}
+            appearance={{
+              button:
+                "rounded-lg bg-secondary px-4 py-2 text-sm font-medium text-secondary-foreground hover:bg-muted",
+              allowedContent: "text-xs text-muted-foreground",
+            }}
           />
-        </label>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border pt-5">
