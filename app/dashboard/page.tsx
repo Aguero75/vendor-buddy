@@ -17,6 +17,12 @@ export default function DashboardPage() {
         >
           Manage products
         </Link>
+        <Link
+          href="/dashboard/settings"
+          className="ml-2 inline-flex h-8 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Settings
+        </Link>
       </div>
     </main>
   );
