@@ -141,7 +141,7 @@ export function SettingsForm({ settings }: SettingsFormProps) {
         <div>
           <h2 className="font-semibold">Business logo</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Upload a square image up to 4MB.
+            Upload a square image up to 8MB.
           </p>
         </div>
         {logoUrl ? (
@@ -166,8 +166,10 @@ export function SettingsForm({ settings }: SettingsFormProps) {
               toast.success("Image uploaded");
             }
           }}
-          onUploadError={() => {
-            toast.error("Upload failed — try a different image");
+          onUploadError={(error) => {
+            toast.error(
+              error.message || "Upload failed — try a different image",
+            );
           }}
           appearance={{
             button:

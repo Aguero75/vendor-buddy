@@ -3,26 +3,44 @@ import Link from "next/link";
 import { ProductList } from "@/components/dashboard/product-list";
 import { prisma } from "@/lib/prisma";
 
-export default async function ProductsPage() {
+const PAGE_SIZE = 10;
+
+export default async function ProductsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const rawPage = Array.isArray(params.page) ? params.page[0] : params.page;
+  const page = Math.max(1, Number.parseInt(rawPage ?? "1", 10) || 1);
+
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
     select: { id: true, businessName: true },
   });
 
-  const products = vendor
-    ? await prisma.product.findMany({
-        where: { vendorId: vendor.id },
-        orderBy: { updatedAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          description: true,
-          category: true,
-          price: true,
-          inStock: true,
-        },
-      })
-    : [];
+  const [products, productCount] = vendor
+    ? await Promise.all([
+        prisma.product.findMany({
+          where: { vendorId: vendor.id },
+          orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+          skip: (page - 1) * PAGE_SIZE,
+          take: PAGE_SIZE,
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            category: true,
+            price: true,
+            inStock: true,
+          },
+        }),
+        prisma.product.count({
+          where: { vendorId: vendor.id },
+        }),
+      ])
+    : [[], 0];
+  const pageCount = Math.max(1, Math.ceil(productCount / PAGE_SIZE));
 
   return (
     <main className="min-h-screen bg-muted/30 px-5 py-10 sm:px-8">
@@ -57,6 +75,36 @@ export default async function ProductsPage() {
             price: product.price.toString(),
           }))}
         />
+
+        {pageCount > 1 ? (
+          <div className="flex items-center justify-between">
+            {page > 1 ? (
+              <Link
+                href={`/dashboard/products?page=${page - 1}`}
+                className="text-sm font-medium hover:underline"
+              >
+                Previous
+              </Link>
+            ) : (
+              <span />
+            )}
+
+            <span className="text-sm text-muted-foreground">
+              Page {page} of {pageCount}
+            </span>
+
+            {page < pageCount ? (
+              <Link
+                href={`/dashboard/products?page=${page + 1}`}
+                className="text-sm font-medium hover:underline"
+              >
+                Next
+              </Link>
+            ) : (
+              <span />
+            )}
+          </div>
+        ) : null}
       </div>
     </main>
   );

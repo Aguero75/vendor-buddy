@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 
+import { SignOutButton } from "@/components/dashboard/sign-out-button";
+
 export function SiteHeader({
   businessName = "Vendor Buddy",
 }: {
@@ -56,6 +58,7 @@ export function DashboardHeader() {
           <Link href="/dashboard/settings" className="nav-link">
             Settings
           </Link>
+          <SignOutButton />
         </nav>
       </div>
     </header>

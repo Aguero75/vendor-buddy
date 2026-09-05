@@ -23,7 +23,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Vendor Buddy",
-  description: "A simple storefront for small vendors.",
+  description:
+    "A simple storefront for small vendors with eye-catching designs and analytics.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

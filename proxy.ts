@@ -15,5 +15,5 @@ export default clerkMiddleware(
 );
 
 export const config = {
-  matcher: ["/dashboard(.*)"],
+  matcher: ["/dashboard(.*)", "/api/uploadthing(.*)"],
 };

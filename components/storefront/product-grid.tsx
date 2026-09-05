@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Image from "next/image";
 import { toast } from "react-toastify";
 
@@ -23,6 +24,42 @@ function formatPrice(price: string) {
   }).format(Number(price));
 }
 
+/**
+ * Renders a product image with a smooth fade-in once fully loaded, so
+ * images never "pop" or flicker into place as they finish downloading.
+ * `priority` should be set for images likely to appear above the fold
+ * (the first row or two of the grid) so the browser fetches them early
+ * instead of lazy-loading them at the last moment.
+ */
+function ProductImage({
+  imageUrl,
+  alt,
+  priority,
+}: {
+  imageUrl: string;
+  alt: string;
+  priority: boolean;
+}) {
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  return (
+    <Image
+      src={imageUrl}
+      alt={alt}
+      fill
+      unoptimized
+      priority={priority}
+      loading={priority ? undefined : "lazy"}
+      quality={90}
+      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+      onLoad={() => setIsLoaded(true)}
+      className={`object-cover transition-opacity duration-500 ease-out ${
+        isLoaded ? "opacity-100" : "opacity-0"
+      }`}
+    />
+  );
+}
+
 export function ProductGrid({ products }: { products: Product[] }) {
   const { addItem, totalItems } = useCart();
   if (products.length === 0) {
@@ -38,7 +75,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
   return (
     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-      {products.map((product) => (
+      {products.map((product, index) => (
         <article
           key={product.id}
           className={`overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-transform hover:-translate-y-0.5 ${
@@ -47,13 +84,10 @@ export function ProductGrid({ products }: { products: Product[] }) {
         >
           <div className="relative aspect-4/3 overflow-hidden bg-muted">
             {product.imageUrl ? (
-              <Image
-                src={product.imageUrl}
+              <ProductImage
+                imageUrl={product.imageUrl}
                 alt={product.name}
-                fill
-                unoptimized
-                sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover"
+                priority={index < 3}
               />
             ) : (
               <div className="flex h-full items-end bg-[linear-gradient(135deg,#d8e1d5,#f0c8a8)] p-5">

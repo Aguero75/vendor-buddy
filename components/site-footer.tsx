@@ -46,11 +46,11 @@ export function SiteFooter({
           <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
             Find us
           </h2>
-          <div className="space-y-3 text-sm text-muted-foreground">
+          <div className="space-y-4 text-sm text-muted-foreground">
             {address ? (
               <div className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0 text-primary" />
-                <span>{address}</span>
+                <span className="min-w-0 leading-6">{address}</span>
               </div>
             ) : null}
             {mapUrl ? (
@@ -58,9 +58,9 @@ export function SiteFooter({
                 href={mapUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-primary"
+                className="flex items-center gap-3 font-semibold text-foreground transition-colors hover:text-primary"
               >
-                <MapPin className="size-4 text-primary" />
+                <MapPin className="size-4 shrink-0 text-primary" />
                 Get directions
               </a>
             ) : null}
@@ -69,9 +69,9 @@ export function SiteFooter({
                 href={`https://wa.me/${whatsappNumber.replace(/\D/g, "")}`}
                 target="_blank"
                 rel="noreferrer"
-                className="inline-flex items-center gap-2 transition-colors hover:text-foreground"
+                className="flex items-center gap-3 transition-colors hover:text-foreground"
               >
-                <MessageCircle className="size-4 text-primary" />
+                <MessageCircle className="size-4 shrink-0 text-primary" />
                 Chat on WhatsApp
               </a>
             ) : null}

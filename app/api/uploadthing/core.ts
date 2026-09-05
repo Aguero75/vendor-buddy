@@ -4,7 +4,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 const upload = createUploadthing();
 
 export const ourFileRouter = {
-  logoUploader: upload({ image: { maxFileSize: "4MB", maxFileCount: 1 } })
+  logoUploader: upload({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
     .middleware(async () => {
       const { userId } = await auth();
 
