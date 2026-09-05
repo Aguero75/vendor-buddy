@@ -18,7 +18,17 @@ export default async function Home({
     : params.category;
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
-    select: { id: true, businessName: true, motto: true, whatsappNumber: true },
+    select: {
+      id: true,
+      businessName: true,
+      motto: true,
+      whatsappNumber: true,
+      address: true,
+      mapUrl: true,
+      instagramUrl: true,
+      facebookUrl: true,
+      tiktokUrl: true,
+    },
   });
 
   const categoryRows = vendor
@@ -117,7 +127,15 @@ export default async function Home({
           </section>
         </div>
       </main>
-      <SiteFooter businessName={vendor?.businessName} />
+      <SiteFooter
+        businessName={vendor?.businessName}
+        address={vendor?.address}
+        mapUrl={vendor?.mapUrl}
+        whatsappNumber={vendor?.whatsappNumber}
+        instagramUrl={vendor?.instagramUrl}
+        facebookUrl={vendor?.facebookUrl}
+        tiktokUrl={vendor?.tiktokUrl}
+      />
       <CartDrawer whatsappNumber={vendor?.whatsappNumber ?? ""} />
     </div>
   );

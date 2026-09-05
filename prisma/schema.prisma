@@ -12,6 +12,11 @@ model Vendor {
   logoUrl          String?
   motto            String?
   whatsappNumber   String
+  address          String?
+  mapUrl           String?
+  instagramUrl     String?
+  facebookUrl      String?
+  tiktokUrl        String?
   createdAt        DateTime          @default(now())
   products         Product[]
   receipts         Receipt[]

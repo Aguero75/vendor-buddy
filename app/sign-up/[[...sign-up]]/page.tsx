@@ -3,6 +3,10 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 
 export default async function SignUpPage() {
+  if (process.env.ADMIN_CLERK_USER_ID) {
+    redirect("/sign-in");
+  }
+
   const client = await clerkClient();
   const userCount = await client.users.getCount();
 

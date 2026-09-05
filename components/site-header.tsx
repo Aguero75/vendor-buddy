@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight, ShoppingBag } from "lucide-react";
+import { ShoppingBag } from "lucide-react";
 
 export function SiteHeader({
   businessName = "Vendor Buddy",
@@ -18,10 +18,6 @@ export function SiteHeader({
           <span>{businessName}</span>
         </Link>
         <nav className="flex items-center gap-2" aria-label="Main navigation">
-          <Link href="/dashboard" className="nav-link hidden sm:inline-flex">
-            Admin workspace
-            <ArrowUpRight className="size-3.5" />
-          </Link>
           <Link href="/" className="icon-link" aria-label="View storefront">
             <ShoppingBag className="size-4" />
           </Link>

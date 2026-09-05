@@ -1,14 +1,13 @@
-import { auth } from "@clerk/nextjs/server";
-
 import { DashboardHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { requireAdmin } from "@/lib/auth";
 
 export default async function DashboardLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  await auth.protect();
+  await requireAdmin();
 
   return (
     <div className="flex min-h-screen flex-col">

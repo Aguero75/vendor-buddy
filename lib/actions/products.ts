@@ -1,9 +1,9 @@
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import { Prisma } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
+import { checkAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type ActionResult<T = undefined> =
@@ -23,7 +23,12 @@ type ProductInput =
   | { error: string };
 
 async function getAuthorizedVendor() {
-  await auth.protect();
+  const admin = await checkAdmin();
+
+  if (!admin.authorized) {
+    return null;
+  }
+
   return prisma.vendor.findFirst({ orderBy: { createdAt: "asc" } });
 }
 

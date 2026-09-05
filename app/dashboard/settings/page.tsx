@@ -11,6 +11,11 @@ export default async function SettingsPage() {
       motto: true,
       whatsappNumber: true,
       logoUrl: true,
+      address: true,
+      mapUrl: true,
+      instagramUrl: true,
+      facebookUrl: true,
+      tiktokUrl: true,
     },
   });
 

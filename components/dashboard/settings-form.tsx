@@ -15,6 +15,11 @@ type SettingsFormProps = {
     motto: string | null;
     whatsappNumber: string;
     logoUrl: string | null;
+    address: string | null;
+    mapUrl: string | null;
+    instagramUrl: string | null;
+    facebookUrl: string | null;
+    tiktokUrl: string | null;
   };
 };
 
@@ -74,6 +79,62 @@ export function SettingsForm({ settings }: SettingsFormProps) {
             Include the country code so customer checkout links work everywhere.
           </span>
         </label>
+
+        <label className="space-y-2 sm:col-span-2">
+          <span className="text-sm font-medium">Address</span>
+          <input
+            name="address"
+            defaultValue={settings.address ?? ""}
+            placeholder="12 Market Street, Lagos"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+        </label>
+
+        <label className="space-y-2 sm:col-span-2">
+          <span className="text-sm font-medium">Map link</span>
+          <input
+            name="mapUrl"
+            type="url"
+            defaultValue={settings.mapUrl ?? ""}
+            placeholder="https://maps.google.com/..."
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+        </label>
+      </div>
+
+      <div className="space-y-4 border-t border-border pt-6">
+        <div>
+          <h2 className="font-semibold">Social links</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Add the profiles customers can use to keep up with your business.
+          </p>
+        </div>
+        <div className="grid gap-5 sm:grid-cols-2">
+          {[
+            {
+              name: "instagramUrl",
+              label: "Instagram",
+              value: settings.instagramUrl,
+            },
+            {
+              name: "facebookUrl",
+              label: "Facebook",
+              value: settings.facebookUrl,
+            },
+            { name: "tiktokUrl", label: "TikTok", value: settings.tiktokUrl },
+          ].map(({ name, label, value }) => (
+            <label key={name} className="space-y-2">
+              <span className="text-sm font-medium">{label}</span>
+              <input
+                name={name}
+                type="url"
+                defaultValue={value ?? ""}
+                placeholder="https://..."
+                className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+              />
+            </label>
+          ))}
+        </div>
       </div>
 
       <div className="space-y-3 border-t border-border pt-6">
