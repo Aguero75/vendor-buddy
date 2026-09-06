@@ -152,7 +152,7 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     );
                   }
                 }}
-                className="flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+                className="flex items-center cursor-pointer gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
               >
                 {product.inStock ? (
                   <>
