@@ -119,58 +119,75 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
     <div className="space-y-5">
       <div
         ref={cardRef}
-        className="mx-auto max-w-2xl border border-[#e5e0d7] bg-white p-6 text-[#25231f] shadow-sm sm:p-10"
+        className="relative mx-auto max-w-xl overflow-hidden rounded-3xl border border-white/50 bg-white/55 p-6 text-[#25231f] shadow-[0_8px_40px_rgba(37,35,31,0.14)] backdrop-blur-xl sm:p-10"
       >
-        <div className="flex items-start justify-between gap-5 border-b border-[#e5e0d7] pb-6">
-          <div className="space-y-2">
-            {receipt.logoUrl ? (
-              <Image
-                src={receipt.logoUrl}
-                alt={`${receipt.businessName} logo`}
-                width={72}
-                height={72}
-                unoptimized
-                crossOrigin="anonymous"
-                className="size-16 rounded-lg object-cover"
-              />
-            ) : null}
-            <h2 className="text-2xl font-semibold">{receipt.businessName}</h2>
-            {receipt.motto ? (
-              <p className="max-w-md text-sm text-[#6f6a60]">{receipt.motto}</p>
-            ) : null}
+        <div
+          className="pointer-events-none absolute -left-16 -top-20 size-64 rounded-full bg-gradient-to-br from-amber-200/50 via-orange-100/40 to-transparent blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute -bottom-24 -right-16 size-72 rounded-full bg-gradient-to-tr from-stone-200/50 via-amber-100/30 to-transparent blur-3xl"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-white/40 via-transparent to-white/10"
+          aria-hidden="true"
+        />
+
+        <div className="relative">
+          <div className="flex items-start justify-between gap-5 border-b border-[#e5e0d7]/80 pb-6">
+            <div className="space-y-2">
+              {receipt.logoUrl ? (
+                <Image
+                  src={receipt.logoUrl}
+                  alt={`${receipt.businessName} logo`}
+                  width={72}
+                  height={72}
+                  unoptimized
+                  crossOrigin="anonymous"
+                  className="size-16 rounded-lg object-cover"
+                />
+              ) : null}
+              <h2 className="text-2xl font-semibold">{receipt.businessName}</h2>
+              {receipt.motto ? (
+                <p className="max-w-md text-sm text-[#6f6a60]">
+                  {receipt.motto}
+                </p>
+              ) : null}
+            </div>
+            <div className="text-right text-sm text-[#6f6a60]">
+              <p className="font-medium text-[#25231f]">Receipt</p>
+              <p>{new Date(receipt.createdAt).toLocaleString()}</p>
+            </div>
           </div>
-          <div className="text-right text-sm text-[#6f6a60]">
-            <p className="font-medium text-[#25231f]">Receipt</p>
-            <p>{new Date(receipt.createdAt).toLocaleString()}</p>
+
+          <div className="border-b border-[#e5e0d7]/80 py-5 text-sm">
+            <span className="text-[#6f6a60]">Customer: </span>
+            {receipt.customerName || "Walk-in customer"}
           </div>
-        </div>
 
-        <div className="border-b border-[#e5e0d7] py-5 text-sm">
-          <span className="text-[#6f6a60]">Customer: </span>
-          {receipt.customerName || "Walk-in customer"}
-        </div>
+          <ul className="divide-y divide-[#e5e0d7]/80 text-sm">
+            {receipt.lineItems.map((lineItem, index) => (
+              <li
+                key={`${lineItem.nameSnapshot}-${index}`}
+                className="flex justify-between gap-4 py-4"
+              >
+                <span>
+                  {lineItem.quantity} × {lineItem.nameSnapshot}
+                </span>
+                <span className="font-medium">
+                  {formatPrice(
+                    (Number(lineItem.unitPrice) * lineItem.quantity).toString(),
+                  )}
+                </span>
+              </li>
+            ))}
+          </ul>
 
-        <ul className="divide-y divide-[#e5e0d7] text-sm">
-          {receipt.lineItems.map((lineItem, index) => (
-            <li
-              key={`${lineItem.nameSnapshot}-${index}`}
-              className="flex justify-between gap-4 py-4"
-            >
-              <span>
-                {lineItem.quantity} × {lineItem.nameSnapshot}
-              </span>
-              <span className="font-medium">
-                {formatPrice(
-                  (Number(lineItem.unitPrice) * lineItem.quantity).toString(),
-                )}
-              </span>
-            </li>
-          ))}
-        </ul>
-
-        <div className="flex justify-between border-t-2 border-[#25231f] pt-5 text-lg font-semibold">
-          <span>Total</span>
-          <span>{formatPrice(receipt.total)}</span>
+          <div className="flex justify-between border-t-2 border-[#25231f] pt-5 text-lg font-semibold">
+            <span>Total</span>
+            <span>{formatPrice(receipt.total)}</span>
+          </div>
         </div>
       </div>
 

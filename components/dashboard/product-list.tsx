@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { Pencil, Power, Trash2 } from "lucide-react";
 
@@ -26,9 +26,87 @@ function formatPrice(price: string) {
   }).format(Number(price));
 }
 
+function DeleteProductDialog({
+  product,
+  isPending,
+  onConfirm,
+  onCancel,
+}: {
+  product: Product;
+  isPending: boolean;
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        onCancel();
+      }
+    }
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [onCancel]);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center px-4"
+      role="presentation"
+    >
+      <div
+        className="absolute inset-0 bg-foreground/40 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={onCancel}
+      />
+      <div
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="delete-product-title"
+        aria-describedby="delete-product-description"
+        className="relative w-full max-w-sm rounded-xl border border-border bg-card p-6 shadow-lg animate-in fade-in zoom-in-95 duration-150"
+      >
+        <h2 id="delete-product-title" className="text-lg font-semibold">
+          Delete product?
+        </h2>
+        <p
+          id="delete-product-description"
+          className="mt-2 text-sm text-muted-foreground"
+        >
+          This will permanently remove{" "}
+          <span className="font-medium text-foreground">{product.name}</span>{" "}
+          from your catalog. This can't be undone.
+        </p>
+
+        <div className="mt-6 flex justify-end gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={isPending}
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant="destructive"
+            size="sm"
+            disabled={isPending}
+            onClick={onConfirm}
+          >
+            {isPending ? "Deleting…" : "Delete"}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ProductList({ products }: { products: Product[] }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [productPendingDelete, setProductPendingDelete] =
+    useState<Product | null>(null);
 
   function handleToggle(product: Product) {
     startTransition(async () => {
@@ -47,9 +125,15 @@ export function ProductList({ products }: { products: Product[] }) {
   }
 
   function handleDelete(product: Product) {
-    if (!window.confirm(`Delete ${product.name}?`)) {
+    setProductPendingDelete(product);
+  }
+
+  function confirmDelete() {
+    if (!productPendingDelete) {
       return;
     }
+
+    const product = productPendingDelete;
 
     startTransition(async () => {
       const result = await deleteProduct(product.id);
@@ -60,6 +144,7 @@ export function ProductList({ products }: { products: Product[] }) {
       }
 
       toast.success("Product deleted");
+      setProductPendingDelete(null);
       router.refresh();
     });
   }
@@ -148,6 +233,15 @@ export function ProductList({ products }: { products: Product[] }) {
           </article>
         ))}
       </div>
+
+      {productPendingDelete ? (
+        <DeleteProductDialog
+          product={productPendingDelete}
+          isPending={isPending}
+          onConfirm={confirmDelete}
+          onCancel={() => setProductPendingDelete(null)}
+        />
+      ) : null}
     </div>
   );
 }

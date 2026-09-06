@@ -3,6 +3,8 @@ import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import Image from "next/image";
+import hero from "@/public/undraw_online-revenue_6egl.svg";
 import { prisma } from "@/lib/prisma";
 
 const UNCATEGORIZED = "uncategorized";
@@ -72,11 +74,28 @@ export default async function Home({
       <SiteHeader businessName={vendor?.businessName} />
       <main className="flex-1 px-5 py-10 text-foreground sm:px-8 sm:py-16">
         <div className="shell space-y-14">
-          <header className="relative overflow-hidden rounded-3xl border border-border bg-card px-6 py-10 shadow-sm sm:px-10 sm:py-14">
+          {/* header */}
+
+          <header className="relative overflow-hidden rounded-3xl border border-border px-6 py-10 shadow-sm sm:px-10 sm:py-14">
+            <div className="absolute right-0 top-1/2 hidden h-[70%] w-[45%] -translate-y-1/2 lg:block">
+              <Image
+                src={hero}
+                alt="hero img"
+                fill
+                priority
+                sizes="45vw"
+                className="object-contain object-right p-6"
+              />
+            </div>
+            <div
+              className="absolute inset-0 bg-linear-to-t from-background via-background/70 to-background/30"
+              aria-hidden="true"
+            />
             <div
               className="absolute -right-16 -top-24 size-72 rounded-full bg-accent/30 blur-3xl"
               aria-hidden="true"
             />
+
             <div className="relative space-y-4">
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 {vendor?.businessName ?? "Vendor Buddy"}
@@ -84,7 +103,8 @@ export default async function Home({
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl space-y-3">
                   <h1 className="font-display max-w-2xl text-5xl leading-[0.98] tracking-tight sm:text-7xl">
-                    Made for your table.
+                    Made for your Delight & Get products to your destination in
+                    one click.
                   </h1>
                   <p className="max-w-xl text-base leading-7 text-muted-foreground">
                     {vendor?.motto ??
@@ -92,12 +112,11 @@ export default async function Home({
                   </p>
                 </div>
                 <div className="rounded-2xl border border-border bg-background/75 px-4 py-3 text-sm font-semibold text-muted-foreground shadow-sm">
-                  Freshly listed
+                  Freshly listed for you
                 </div>
               </div>
             </div>
           </header>
-
           <section className="space-y-5" aria-labelledby="catalog-heading">
             <div className="flex items-end justify-between gap-4">
               <div>

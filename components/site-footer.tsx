@@ -8,7 +8,7 @@ import location from "@/public/location-svgrepo-com (1).svg";
 import direction from "@/public/location-pin-svgrepo-com.svg";
 
 export function SiteFooter({
-  businessName = "Vendor Buddy",
+  businessName = "Vendor Buddy by Tony",
   address,
   mapUrl,
   whatsappNumber,
@@ -40,7 +40,7 @@ export function SiteFooter({
               <span>{businessName}</span>
             </p>
             <p className="mt-3 max-w-xs text-sm leading-6 text-muted-foreground">
-              A simpler way to find and order what you love.
+              A simpler way to find and order what you love with ease.
             </p>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -51,6 +51,9 @@ export function SiteFooter({
         <div className="space-y-4">
           <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
             Find us
+          </h2>
+          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
+            easily by visiting our social pages
           </h2>
           <div className="space-y-4 text-sm text-muted-foreground">
             {address ? (
@@ -82,7 +85,7 @@ export function SiteFooter({
                 className="flex items-center gap-3 transition-colors hover:text-foreground"
               >
                 <Image src={whatsapp} alt={whatsappNumber} className="size-4" />
-                Chat on WhatsApp
+                Book us for events on WhatsApp
               </a>
             ) : null}
           </div>

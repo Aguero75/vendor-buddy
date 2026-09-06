@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { PackageX, ShoppingCart, Tag } from "lucide-react";
 import { toast } from "react-toastify";
 
 import { useCart } from "@/lib/cart-context";
@@ -24,9 +25,14 @@ function formatPrice(price: string) {
   }).format(Number(price));
 }
 
+// Tracks which image URLs have already finished loading once, so the
+// fade-in never replays for images the browser already has cached
+// (e.g. when the grid re-renders from a filter, sort, or cart update).
+const loadedImageUrls = new Set<string>();
+
 /**
- * Renders a product image with a smooth fade-in once fully loaded, so
- * images never "pop" or flicker into place as they finish downloading.
+ * Renders a product image with a smooth fade-in the first time it loads,
+ * so images never "pop" or flicker into place as they finish downloading.
  * `priority` should be set for images likely to appear above the fold
  * (the first row or two of the grid) so the browser fetches them early
  * instead of lazy-loading them at the last moment.
@@ -40,23 +46,33 @@ function ProductImage({
   alt: string;
   priority: boolean;
 }) {
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(() => loadedImageUrls.has(imageUrl));
 
   return (
-    <Image
-      src={imageUrl}
-      alt={alt}
-      fill
-      unoptimized
-      priority={priority}
-      loading={priority ? undefined : "lazy"}
-      quality={90}
-      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-      onLoad={() => setIsLoaded(true)}
-      className={`object-cover transition-opacity duration-500 ease-out ${
-        isLoaded ? "opacity-100" : "opacity-0"
-      }`}
-    />
+    <>
+      {!isLoaded ? (
+        <div
+          className="absolute inset-0 animate-pulse bg-muted"
+          aria-hidden="true"
+        />
+      ) : null}
+      <Image
+        src={imageUrl}
+        alt={alt}
+        fill
+        priority={priority}
+        loading={priority ? undefined : "lazy"}
+        quality={90}
+        sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+        onLoad={() => {
+          loadedImageUrls.add(imageUrl);
+          setIsLoaded(true);
+        }}
+        className={`object-cover transition-opacity duration-500 ease-out ${
+          isLoaded ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </>
   );
 }
 
@@ -97,7 +113,8 @@ export function ProductGrid({ products }: { products: Product[] }) {
               </div>
             )}
             {!product.inStock ? (
-              <span className="absolute left-3 top-3 rounded-full bg-foreground/85 px-3 py-1 text-xs font-semibold text-background">
+              <span className="absolute left-3 top-3 flex items-center gap-1.5 rounded-full bg-foreground/85 px-3 py-1 text-xs font-semibold text-background">
+                <PackageX className="size-3.5" />
                 Out of stock
               </span>
             ) : null}
@@ -105,7 +122,8 @@ export function ProductGrid({ products }: { products: Product[] }) {
 
           <div className="space-y-4 p-5">
             <div className="space-y-1">
-              <p className="text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+              <p className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-[0.14em] text-muted-foreground">
+                <Tag className="size-3.5" />
                 {product.category ?? "Uncategorized"}
               </p>
               <h2 className="text-xl font-semibold tracking-tight">
@@ -134,13 +152,19 @@ export function ProductGrid({ products }: { products: Product[] }) {
                     );
                   }
                 }}
-                className="rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
+                className="flex items-center gap-1.5 rounded-lg bg-foreground px-3 py-2 text-sm font-medium text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
               >
-                {product.inStock
-                  ? totalItems > 0
-                    ? "Add to cart"
-                    : "Buy now"
-                  : "Unavailable"}
+                {product.inStock ? (
+                  <>
+                    <ShoppingCart className="size-4" />
+                    Add to cart
+                  </>
+                ) : (
+                  <>
+                    <PackageX className="size-4" />
+                    Unavailable
+                  </>
+                )}
               </button>
             </div>
           </div>
