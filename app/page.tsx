@@ -103,8 +103,8 @@ export default async function Home({
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl space-y-3">
                   <h1 className="font-display max-w-2xl text-5xl leading-[0.98] tracking-tight sm:text-7xl">
-                    Made for your Delight & Get products to your destination in
-                    one click.
+                    Made with delight — turn your WhatsApp products into a
+                    storefront your customers will love, in one click.
                   </h1>
                   <p className="max-w-xl text-base leading-7 text-muted-foreground">
                     {vendor?.motto ??

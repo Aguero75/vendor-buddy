@@ -52,9 +52,9 @@ export function SiteFooter({
           <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
             Find us
           </h2>
-          <h2 className="text-xs font-bold uppercase tracking-[0.18em] text-foreground">
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
             easily by visiting our social pages
-          </h2>
+          </p>
           <div className="space-y-4 text-sm text-muted-foreground">
             {address ? (
               <div className="flex items-start gap-3">
