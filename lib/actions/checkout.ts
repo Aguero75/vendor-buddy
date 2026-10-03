@@ -87,16 +87,20 @@ export async function startCheckout(
     };
   }
 
-  if (
-    !process.env.PAYSTACK_SECRET_KEY?.trim() ||
-    !process.env.NEXT_PUBLIC_SITE_URL?.trim()
-  ) {
+  const missingPaystackSettings = [
+    !process.env.PAYSTACK_SECRET_KEY?.trim() && "PAYSTACK_SECRET_KEY",
+    !process.env.NEXT_PUBLIC_SITE_URL?.trim() && "NEXT_PUBLIC_SITE_URL",
+  ].filter((setting): setting is string => Boolean(setting));
+
+  if (missingPaystackSettings.length > 0) {
+    const missingSettings = missingPaystackSettings.join(" and ");
+
     return {
       ok: false,
       message:
         process.env.NODE_ENV === "development"
-          ? "Paystack checkout is not configured. Add PAYSTACK_SECRET_KEY and NEXT_PUBLIC_SITE_URL to .env.local, then restart the dev server."
-          : "Online payment is temporarily unavailable. Please try again later.",
+          ? `Paystack checkout is not configured. Add ${missingSettings} to .env.local, then restart the dev server.`
+          : `Online payment needs ${missingSettings} set in Vercel Project Settings > Environment Variables. Redeploy after updating them.`,
     };
   }
 
