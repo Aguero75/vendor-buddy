@@ -7,6 +7,12 @@ datasource db {
   
 }
 
+enum ReceiptStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
 model Vendor {
   id               String            @id @default(cuid())
   businessName     String
@@ -47,6 +53,11 @@ model Receipt {
   vendorId     String
   vendor       Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
   customerName String?
+  email        String?
+  phone        String?
+  paystackRef  String?           @unique
+  status       ReceiptStatus     @default(PAID)
+  paidAt       DateTime?
   total        Decimal           @db.Decimal(10, 2)
   createdAt    DateTime          @default(now())
   lineItems    ReceiptLineItem[]

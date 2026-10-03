@@ -13,6 +13,9 @@ type ReceiptCardData = {
   motto: string | null;
   logoUrl: string | null;
   customerName: string | null;
+  email: string | null;
+  phone: string | null;
+  paymentReference: string | null;
   createdAt: string;
   total: string;
   lineItems: {
@@ -161,9 +164,29 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
             </div>
           </div>
 
-          <div className="border-b border-[#e5e0d7]/80 py-5 text-sm">
-            <span className="text-[#6f6a60]">Customer: </span>
-            {receipt.customerName || "Walk-in customer"}
+          <div className="space-y-1 border-b border-[#e5e0d7]/80 py-5 text-sm">
+            <p>
+              <span className="text-[#6f6a60]">Customer: </span>
+              {receipt.customerName || receipt.email || "Walk-in customer"}
+            </p>
+            {receipt.email ? (
+              <p>
+                <span className="text-[#6f6a60]">Email: </span>
+                {receipt.email}
+              </p>
+            ) : null}
+            {receipt.phone ? (
+              <p>
+                <span className="text-[#6f6a60]">Phone: </span>
+                {receipt.phone}
+              </p>
+            ) : null}
+            {receipt.paymentReference ? (
+              <p className="break-all">
+                <span className="text-[#6f6a60]">Paystack reference: </span>
+                {receipt.paymentReference}
+              </p>
+            ) : null}
           </div>
 
           <ul className="divide-y divide-[#e5e0d7]/80 text-sm">

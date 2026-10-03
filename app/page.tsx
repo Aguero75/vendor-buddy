@@ -1,5 +1,6 @@
 import { CategoryPills } from "@/components/storefront/category-pills";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
+import { CheckoutOutcome } from "@/components/storefront/checkout-outcome";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -12,12 +13,16 @@ const UNCATEGORIZED = "uncategorized";
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string | string[] }>;
+  searchParams: Promise<{
+    category?: string | string[];
+    paid?: string | string[];
+  }>;
 }) {
   const params = await searchParams;
   const categoryParam = Array.isArray(params.category)
     ? params.category[0]
     : params.category;
+  const paidParam = Array.isArray(params.paid) ? params.paid[0] : params.paid;
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
     select: {
@@ -71,12 +76,21 @@ export default async function Home({
 
   return (
     <div className="flex min-h-screen flex-col">
+      <CheckoutOutcome paid={paidParam === "1"} />
       <SiteHeader businessName={vendor?.businessName} />
       <main className="flex-1 px-5 py-10 text-foreground sm:px-8 sm:py-16">
         <div className="shell space-y-14">
           {/* header */}
-
           <header className="relative overflow-hidden rounded-3xl border border-border px-6 py-10 shadow-sm sm:px-10 sm:py-14">
+            {/* Glowing line that travels around the edge */}
+            <span className="hero-edge-light" aria-hidden="true" />
+
+            {/* Optional second line chasing from the opposite side */}
+            <span
+              className="hero-edge-light [animation-delay:-3s]"
+              aria-hidden="true"
+            />
+
             <div className="absolute right-0 top-1/2 hidden h-[70%] w-[45%] -translate-y-1/2 lg:block">
               <Image
                 src={hero}
@@ -87,10 +101,12 @@ export default async function Home({
                 className="object-contain object-right p-6"
               />
             </div>
+
             <div
               className="absolute inset-0 bg-linear-to-t from-background via-background/70 to-background/30"
               aria-hidden="true"
             />
+
             <div
               className="absolute -right-16 -top-24 size-72 rounded-full bg-accent/30 blur-3xl"
               aria-hidden="true"
@@ -100,10 +116,11 @@ export default async function Home({
               <p className="text-sm font-semibold uppercase tracking-[0.2em] text-muted-foreground">
                 {vendor?.businessName ?? "Vendor Buddy"}
               </p>
+
               <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
                 <div className="max-w-2xl space-y-3">
                   <h1 className="font-display max-w-2xl text-5xl leading-[0.98] tracking-tight sm:text-7xl">
-                    Made with delight — turn your WhatsApp products into a
+                    Made with delight , turn your WhatsApp products into a
                     storefront your customers will love, in one click.
                   </h1>
                   <p className="max-w-xl text-base leading-7 text-muted-foreground">
@@ -111,6 +128,7 @@ export default async function Home({
                       "Browse the latest selection and find something good."}
                   </p>
                 </div>
+
                 <div className="rounded-2xl border border-border bg-background/75 px-4 py-3 text-sm font-semibold text-muted-foreground shadow-sm">
                   Freshly listed for you
                 </div>
@@ -155,7 +173,7 @@ export default async function Home({
         facebookUrl={vendor?.facebookUrl}
         tiktokUrl={vendor?.tiktokUrl}
       />
-      <CartDrawer whatsappNumber={vendor?.whatsappNumber ?? ""} />
+      <CartDrawer />
     </div>
   );
 }

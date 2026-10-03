@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { ReceiptStatus } from "@prisma/client";
 
 export type SalesAnalytics = {
   dailySales: { label: string; date: string; total: number }[];
@@ -31,20 +32,27 @@ export async function getSalesAnalytics(
     prisma.receipt.findMany({
       where: {
         vendorId,
-        createdAt: { gte: firstDay, lt: endOfToday },
+        status: ReceiptStatus.PAID,
+        OR: [
+          { paidAt: { gte: firstDay, lt: endOfToday } },
+          {
+            paidAt: null,
+            createdAt: { gte: firstDay, lt: endOfToday },
+          },
+        ],
       },
-      select: { createdAt: true, total: true },
+      select: { createdAt: true, paidAt: true, total: true },
       orderBy: { createdAt: "asc" },
     }),
     prisma.receiptLineItem.findMany({
-      where: { vendorId },
+      where: { vendorId, receipt: { status: ReceiptStatus.PAID } },
       select: { nameSnapshot: true, quantity: true, unitPrice: true },
     }),
   ]);
 
   const dailyTotals = new Map<string, number>();
   for (const receipt of receipts) {
-    const date = startOfDay(receipt.createdAt);
+    const date = startOfDay(receipt.paidAt ?? receipt.createdAt);
     const key = date.toISOString().slice(0, 10);
     dailyTotals.set(key, (dailyTotals.get(key) ?? 0) + Number(receipt.total));
   }

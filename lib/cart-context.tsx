@@ -1,8 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState, type ReactNode } from "react";
+import {
+  createContext,
+  startTransition,
+  useContext,
+  useEffect,
+  useState,
+  type ReactNode,
+} from "react";
 
 export const MAX_CART_ITEMS = 15;
+const CART_STORAGE_KEY = "vendor-buddy-cart";
 
 export type CartProduct = {
   id: string;
@@ -16,6 +24,7 @@ export type CartLine = CartProduct & {
 
 type CartContextValue = {
   lines: CartLine[];
+  isHydrated: boolean;
   totalItems: number;
   total: number;
   addItem: (product: CartProduct) => boolean;
@@ -28,6 +37,64 @@ const CartContext = createContext<CartContextValue | null>(null);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>([]);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    let restored: CartLine[] = [];
+
+    try {
+      const saved = localStorage.getItem(CART_STORAGE_KEY);
+      const parsed: unknown = saved ? JSON.parse(saved) : [];
+
+      if (Array.isArray(parsed)) {
+        let itemCount = 0;
+
+        for (const value of parsed) {
+          if (!value || typeof value !== "object") {
+            continue;
+          }
+
+          const line = value as Record<string, unknown>;
+          const id = typeof line.id === "string" ? line.id : "";
+          const name = typeof line.name === "string" ? line.name : "";
+          const price = typeof line.price === "string" ? line.price : "";
+          const quantity = Number(line.quantity);
+
+          if (
+            !id ||
+            !name ||
+            !Number.isFinite(Number(price)) ||
+            !Number.isInteger(quantity) ||
+            quantity < 1 ||
+            itemCount + quantity > MAX_CART_ITEMS
+          ) {
+            continue;
+          }
+
+          itemCount += quantity;
+          restored.push({ id, name, price, quantity });
+        }
+      }
+    } catch {
+      try {
+        localStorage.removeItem(CART_STORAGE_KEY);
+      } catch {
+        restored = [];
+      }
+    }
+
+    startTransition(() => {
+      setLines(restored);
+      setIsHydrated(true);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(lines));
+    }
+  }, [isHydrated, lines]);
+
   const totalItems = lines.reduce((sum, line) => sum + line.quantity, 0);
   const total = lines.reduce(
     (sum, line) => sum + Number(line.price) * line.quantity,
@@ -88,12 +155,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
     <CartContext.Provider
       value={{
         lines,
+        isHydrated,
         totalItems,
         total,
         addItem,
         removeItem,
         setQuantity,
-        clearCart: () => setLines([]),
+        clearCart: () => {
+          localStorage.removeItem(CART_STORAGE_KEY);
+          setLines([]);
+        },
       }}
     >
       {children}

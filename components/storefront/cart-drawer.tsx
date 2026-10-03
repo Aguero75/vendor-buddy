@@ -1,15 +1,11 @@
 "use client";
 
 import { Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
 import { MAX_CART_ITEMS, useCart } from "@/lib/cart-context";
-import { buildWhatsAppUrl } from "@/lib/whatsapp-message";
-
-type CartDrawerProps = {
-  whatsappNumber: string;
-};
 
 function formatPrice(price: number) {
   return new Intl.NumberFormat("en-NG", {
@@ -19,35 +15,9 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-export function CartDrawer({ whatsappNumber }: CartDrawerProps) {
+export function CartDrawer() {
   const [isOpen, setIsOpen] = useState(false);
-  const { lines, totalItems, total, removeItem, setQuantity, clearCart } =
-    useCart();
-
-  function checkout() {
-    if (lines.length === 0) {
-      return;
-    }
-
-    try {
-      const checkout = buildWhatsAppUrl(whatsappNumber, lines);
-
-      if (!whatsappNumber || checkout.encodedLength > 1500) {
-        throw new Error("Invalid checkout link");
-      }
-
-      const opened = window.open(checkout.url, "_blank", "noopener,noreferrer");
-
-      if (!opened) {
-        throw new Error("WhatsApp did not open");
-      }
-
-      clearCart();
-      setIsOpen(false);
-    } catch {
-      toast.error("Couldn't open WhatsApp — try again");
-    }
-  }
+  const { lines, totalItems, total, removeItem, setQuantity } = useCart();
 
   return (
     <>
@@ -174,14 +144,23 @@ export function CartDrawer({ whatsappNumber }: CartDrawerProps) {
                 <span>Total</span>
                 <span>{formatPrice(total)}</span>
               </div>
-              <button
-                type="button"
-                disabled={lines.length === 0}
-                onClick={checkout}
-                className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-85 disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground"
-              >
-                Checkout on WhatsApp
-              </button>
+              {lines.length > 0 ? (
+                <Link
+                  href="/checkout"
+                  onClick={() => setIsOpen(false)}
+                  className="block w-full rounded-lg bg-foreground px-4 py-3 text-center text-sm font-semibold text-background transition-opacity hover:opacity-85"
+                >
+                  Continue to checkout
+                </Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="w-full rounded-lg bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground"
+                >
+                  Continue to checkout
+                </button>
+              )}
             </footer>
           </aside>
         </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Prisma } from "@prisma/client";
+import { Prisma, ReceiptStatus } from "@prisma/client";
 
 import { SalesAnalytics } from "@/components/dashboard/sales-analytics";
 import { getSalesAnalytics } from "@/lib/analytics";
@@ -37,6 +37,7 @@ export default async function ReceiptsPage({
   const receiptWhere = vendor
     ? {
         vendorId: vendor.id,
+        status: ReceiptStatus.PAID,
         ...(search
           ? {
               OR: [
@@ -171,7 +172,9 @@ export default async function ReceiptsPage({
                 <div className="flex flex-col justify-between gap-2 sm:flex-row sm:items-start">
                   <div>
                     <p className="font-semibold">
-                      {receipt.customerName || "Walk-in customer"}
+                      {receipt.customerName ||
+                        receipt.email ||
+                        "Walk-in customer"}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {receipt.createdAt.toLocaleString()}

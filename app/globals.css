@@ -238,6 +238,43 @@
     background-size: 200% 100%;
     animation: shimmer 1.5s ease-in-out infinite;
   }
+
+  .hero-edge-light {
+    position: absolute;
+    z-index: 20;
+    top: 0;
+    left: 0;
+    width: 20px;
+    height: 2px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgb(255 240 196 / 0.55) 25%,
+      #fff 58%,
+      rgb(255 195 105 / 0.9)
+    );
+    box-shadow:
+      0 0 6px rgb(255 247 218 / 0.9),
+      0 0 14px rgb(248 172 75 / 0.7);
+    offset-path: border-box inset(1px round 23px);
+    offset-anchor: center;
+    offset-rotate: auto;
+    animation: hero-edge-travel 8s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@supports not (offset-path: border-box inset(1px round 23px)) {
+  .hero-edge-light {
+    display: none;
+  }
+}
+
+@keyframes hero-edge-travel {
+  to {
+    offset-distance: 100%;
+  }
 }
 
 @keyframes orbit {
@@ -264,5 +301,43 @@
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+  }
+
+  .hero-edge-light {
+    animation: none;
+    offset-distance: 0%;
+  }
+}
+
+.hero-edge-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  width: 20px; /* line length */
+  height: 2px; /* line thickness */
+  border-radius: 9999px;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, #67e8f9);
+  box-shadow:
+    0 0 6px 1px #22d3ee,
+    0 0 14px 3px rgb(34 211 238 / 0.5);
+
+  /* Inset 2px so the glow isn't clipped by overflow-hidden.
+     rounded-3xl = 24px, minus the inset = ~21px */
+  offset-path: rect(2px calc(100% - 2px) calc(100% - 2px) 2px round 21px);
+  offset-rotate: auto;
+  animation: hero-edge-run 6s linear infinite;
+}
+
+@keyframes hero-edge-run {
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-edge-light {
+    display: none;
   }
 }

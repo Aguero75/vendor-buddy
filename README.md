@@ -1,15 +1,16 @@
 # Vendor Buddy
 
-Vendor Buddy is a simple storefront and sales workspace for small vendors. Customers browse products, build a cart, and send an order through WhatsApp. Vendors manage products, stock, receipts, analytics, business details, and media from a protected dashboard.
+Vendor Buddy is a simple storefront and sales workspace for small vendors. Customers browse products, build a cart, and pay through Paystack's hosted checkout. Vendors manage products, stock, receipts, analytics, business details, and media from a protected dashboard.
 
 This project is deployed as one instance per vendor. Each deployment has its own database, domain, and admin account; it is not a shared marketplace.
 
 ## Features
 
 - Public storefront with categories, product images, stock status, and cart
-- WhatsApp checkout message generation
+- Hosted Paystack checkout with server-side price calculation and payment verification
+- Signed Paystack webhook handling for payment confirmation
 - Admin product management with UploadThing image uploads
-- Manual receipt creation with custom prices and line items
+- Manual and online receipts with customer/payment details and item snapshots
 - Receipt search by customer, item, or total
 - Paginated product and receipt lists
 - Sales analytics
@@ -46,16 +47,16 @@ This project is deployed as one instance per vendor. Each deployment has its own
 2. Create a local environment file:
 
    ```powershell
-   Copy-Item .env.example .env.local
+   Copy-Item .env.template .env.local
    ```
 
    On macOS or Linux:
 
    ```bash
-   cp .env.example .env.local
+   cp .env.template .env.local
    ```
 
-3. Replace the values in `.env.local` with credentials from your own Clerk, Neon/Postgres, and UploadThing projects. Never commit `.env.local` or real credentials.
+3. Replace the values in `.env.local` with credentials from your own Clerk, Neon/Postgres, UploadThing, and Paystack projects. Use a Paystack test secret while developing and set `NEXT_PUBLIC_SITE_URL` to the public base URL that Paystack should return to. Never commit `.env.local` or real credentials.
 
 4. Generate the Prisma client and apply migrations:
 
@@ -82,13 +83,15 @@ This project is deployed as one instance per vendor. Each deployment has its own
 
 The required variable names are listed in `.env.example`:
 
-| Variable                            | Purpose                         |
-| ----------------------------------- | ------------------------------- |
-| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key               |
-| `CLERK_SECRET_KEY`                  | Clerk server key                |
-| `ADMIN_CLERK_USER_ID`               | Optional explicit admin user ID |
-| `DATABASE_URL`                      | PostgreSQL connection string    |
-| `UPLOADTHING_TOKEN`                 | UploadThing server token        |
+| Variable                            | Purpose                              |
+| ----------------------------------- | ------------------------------------ |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key                    |
+| `CLERK_SECRET_KEY`                  | Clerk server key                     |
+| `ADMIN_CLERK_USER_ID`               | Optional explicit admin user ID      |
+| `DATABASE_URL`                      | PostgreSQL connection string         |
+| `UPLOADTHING_TOKEN`                 | UploadThing server token             |
+| `PAYSTACK_SECRET_KEY`               | Paystack server-side API key         |
+| `NEXT_PUBLIC_SITE_URL`              | Public base URL for payment callback |
 
 When `ADMIN_CLERK_USER_ID` is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration.
 
@@ -108,6 +111,9 @@ npx prisma studio    # Inspect the database locally
 | Route                     | Purpose                                               |
 | ------------------------- | ----------------------------------------------------- |
 | `/`                       | Public storefront                                     |
+| `/checkout`               | Customer details and payment summary                  |
+| `/checkout/callback`      | Verifies Paystack payment before returning to store   |
+| `/api/paystack/webhook`   | Signed Paystack payment event endpoint                |
 | `/sign-in`                | Admin sign-in                                         |
 | `/sign-up`                | First-account setup; redirects once an account exists |
 | `/dashboard`              | Admin overview and analytics                          |
@@ -123,7 +129,7 @@ npx prisma studio    # Inspect the database locally
 app/                    Next.js routes and API handlers
 components/             Storefront, dashboard, and shared UI
 lib/actions/            Server actions for products, receipts, and settings
-lib/                    Auth, Prisma, cart, analytics, and messaging helpers
+lib/                    Auth, checkout, Paystack, Prisma, cart, and analytics helpers
 prisma/                 Schema, migrations, and seed data
 public/                 Static assets
 proxy.ts                Clerk and UploadThing request middleware
@@ -134,7 +140,8 @@ proxy.ts                Clerk and UploadThing request middleware
 - A `Vendor` owns products, receipts, and receipt line items.
 - Product stock is a manual boolean, not an inventory quantity.
 - Receipt line items store name and price snapshots so historical receipts do not change when a product is edited.
-- Checkout does not create an order in the database; it builds a WhatsApp message.
+- Online checkout creates a pending receipt using database prices; a verified Paystack payment changes it to paid.
+- Sales analytics include paid receipts only. Manual receipts remain paid by default.
 - Core records include `vendorId` so a future multi-tenant version can evolve without replacing the data model.
 
 ## Deployment
@@ -144,7 +151,8 @@ For a Vercel deployment:
 1. Import the repository into Vercel.
 2. Add the environment variables from `.env.local` to the Vercel project settings.
 3. Use a production PostgreSQL database and run `npx prisma migrate deploy` during deployment or as a release step.
-4. Configure the production URL in Clerk and UploadThing.
-5. Confirm that UploadThing is configured for the production environment.
+4. Set `PAYSTACK_SECRET_KEY` and `NEXT_PUBLIC_SITE_URL` in the deployment environment.
+5. Configure `https://your-domain/api/paystack/webhook` as the Paystack webhook URL.
+6. Configure the production URL in Clerk and UploadThing, and confirm UploadThing is configured for production.
 
 Before a production launch, rotate any credentials exposed during development and verify that no secrets are committed to Git.

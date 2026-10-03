@@ -50,6 +50,9 @@ export default async function ReceiptDetailPage({
             motto: receipt.vendor.motto,
             logoUrl: receipt.vendor.logoUrl,
             customerName: receipt.customerName,
+            email: receipt.email,
+            phone: receipt.phone,
+            paymentReference: receipt.paystackRef,
             createdAt: receipt.createdAt.toISOString(),
             total: receipt.total.toString(),
             lineItems: receipt.lineItems.map((lineItem) => ({
