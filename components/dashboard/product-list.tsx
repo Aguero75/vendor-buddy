@@ -16,6 +16,7 @@ type Product = {
   category: string | null;
   price: string;
   inStock: boolean;
+  stock: number | null;
 };
 
 function formatPrice(price: string) {
@@ -74,7 +75,7 @@ function DeleteProductDialog({
         >
           This will permanently remove{" "}
           <span className="font-medium text-foreground">{product.name}</span>{" "}
-          from your catalog. This can't be undone.
+          from your catalog. This cannot be undone.
         </p>
 
         <div className="mt-6 flex justify-end gap-2">
@@ -102,7 +103,13 @@ function DeleteProductDialog({
   );
 }
 
-export function ProductList({ products }: { products: Product[] }) {
+export function ProductList({
+  products,
+  lowStockThreshold,
+}: {
+  products: Product[];
+  lowStockThreshold: number;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [productPendingDelete, setProductPendingDelete] =
@@ -179,12 +186,26 @@ export function ProductList({ products }: { products: Product[] }) {
                 <h2 className="font-semibold">{product.name}</h2>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    product.inStock
-                      ? "bg-emerald-100 text-emerald-800"
-                      : "bg-muted text-muted-foreground"
+                    product.stock === 0
+                      ? "bg-destructive/10 text-destructive"
+                      : product.stock !== null &&
+                          product.stock <= lowStockThreshold
+                        ? "bg-amber-100 text-amber-800"
+                        : product.inStock
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-muted text-muted-foreground"
                   }`}
                 >
-                  {product.inStock ? "In stock" : "Out of stock"}
+                  {product.stock === 0
+                    ? "Sold out"
+                    : product.stock !== null &&
+                        product.stock <= lowStockThreshold
+                      ? `Low · ${product.stock}`
+                      : product.stock !== null
+                        ? `${product.stock} in stock`
+                        : product.inStock
+                          ? "In stock"
+                          : "Out of stock"}
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
@@ -211,9 +232,14 @@ export function ProductList({ products }: { products: Product[] }) {
                 type="button"
                 variant="outline"
                 size="sm"
-                disabled={isPending}
+                disabled={isPending || product.stock !== null}
                 onClick={() => handleToggle(product)}
                 aria-label={`Toggle stock for ${product.name}`}
+                title={
+                  product.stock !== null
+                    ? "Edit the tracked quantity to change availability"
+                    : undefined
+                }
               >
                 <Power />
                 <span className="sr-only sm:not-sr-only">Stock</span>

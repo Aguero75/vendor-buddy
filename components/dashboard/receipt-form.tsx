@@ -82,14 +82,37 @@ export function ReceiptForm({ products }: { products: ProductOption[] }) {
 
   return (
     <form action={handleSubmit} className="space-y-7">
-      <label className="block max-w-md space-y-2">
-        <span className="text-sm font-medium">Customer name (optional)</span>
-        <input
-          name="customerName"
-          placeholder="e.g. Ada"
-          className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
-        />
-      </label>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <label className="space-y-2">
+          <span className="text-sm font-medium">Customer name (optional)</span>
+          <input
+            name="customerName"
+            maxLength={120}
+            placeholder="e.g. Ada"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+        </label>
+        <label className="space-y-2">
+          <span className="text-sm font-medium">Phone (optional)</span>
+          <input
+            name="phone"
+            type="tel"
+            maxLength={24}
+            placeholder="e.g. 08012345678"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+        </label>
+        <label className="space-y-2">
+          <span className="text-sm font-medium">Email (optional)</span>
+          <input
+            name="email"
+            type="email"
+            maxLength={254}
+            placeholder="customer@example.com"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+        </label>
+      </div>
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">

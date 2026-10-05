@@ -27,6 +27,12 @@ async function main() {
     },
   });
 
+  await prisma.settings.upsert({
+    where: { vendorId: vendor.id },
+    update: {},
+    create: { vendorId: vendor.id },
+  });
+
   await prisma.product.deleteMany({ where: { vendorId: vendor.id } });
 
   await prisma.product.createMany({

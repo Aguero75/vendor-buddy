@@ -68,7 +68,7 @@ function ProductImage({
           loadedImageUrls.add(imageUrl);
           setIsLoaded(true);
         }}
-        className={`object-cover transition-opacity duration-500 ease-out ${
+        className={`product-card__image object-cover transition-[opacity,transform] duration-500 ease-out ${
           isLoaded ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -94,11 +94,11 @@ export function ProductGrid({ products }: { products: Product[] }) {
       {products.map((product, index) => (
         <article
           key={product.id}
-          className={`overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-transform hover:-translate-y-0.5 ${
+          className={`product-card overflow-hidden rounded-2xl border border-border bg-card shadow-sm transition-transform hover:-translate-y-0.5 ${
             product.inStock ? "" : "opacity-75"
           }`}
         >
-          <div className="relative aspect-4/3 overflow-hidden bg-muted">
+          <div className="product-card__media relative aspect-4/3 overflow-hidden bg-muted">
             {product.imageUrl ? (
               <ProductImage
                 imageUrl={product.imageUrl}

@@ -1,17 +1,40 @@
 import Link from "next/link";
 
 import { SalesAnalytics } from "@/components/dashboard/sales-analytics";
-import { getSalesAnalytics } from "@/lib/analytics";
+import { StockAlertsCard } from "@/components/dashboard/stock-alerts-card";
+import { countAttention, getSalesAnalytics, getStockAlerts } from "@/lib/analytics";
 import { prisma } from "@/lib/prisma";
+import { parseRange } from "@/lib/range";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ range?: string | string[] }>;
+}) {
+  const params = await searchParams;
+  const rawRange = Array.isArray(params.range) ? params.range[0] : params.range;
+  const range = parseRange(rawRange);
+  const query = new URLSearchParams();
+  if (rawRange) query.set("range", rawRange);
+
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
     select: { id: true },
   });
-  const analytics = vendor
-    ? await getSalesAnalytics(vendor.id)
-    : { dailySales: [], topProducts: [] };
+  const [analytics, attention, stock] = vendor
+    ? await Promise.all([
+        getSalesAnalytics(vendor.id, range),
+        countAttention(vendor.id),
+        prisma.settings
+          .findUnique({
+            where: { vendorId: vendor.id },
+            select: { lowStockThreshold: true },
+          })
+          .then((settings) =>
+            getStockAlerts(vendor.id, settings?.lowStockThreshold ?? 5),
+          ),
+      ])
+    : [null, { review: 0, partial: 0 }, null];
 
   return (
     <main className="px-5 py-10 sm:px-8 sm:py-14">
@@ -41,7 +64,38 @@ export default async function DashboardPage() {
             </Link>
           </div>
         </section>
-        <SalesAnalytics analytics={analytics} />
+        {attention.review > 0 || attention.partial > 0 ? (
+          <section
+            aria-label="Payments needing attention"
+            className="space-y-2"
+          >
+            {attention.review > 0 ? (
+              <Link
+                href="/dashboard/receipts?status=review"
+                className="block rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
+              >
+                {attention.review} payment{attention.review === 1 ? "" : "s"} need your review.
+              </Link>
+            ) : null}
+            {attention.partial > 0 ? (
+              <Link
+                href="/dashboard/receipts?status=partial"
+                className="block rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
+              >
+                {attention.partial} crypto payment{attention.partial === 1 ? "" : "s"} {attention.partial === 1 ? "is" : "are"} partially paid.
+              </Link>
+            ) : null}
+          </section>
+        ) : null}
+        {stock ? <StockAlertsCard alerts={stock.alerts} /> : null}
+        {analytics ? (
+          <SalesAnalytics
+            analytics={analytics}
+            range={range}
+            pathname="/dashboard"
+            query={query.toString()}
+          />
+        ) : null}
       </div>
     </main>
   );

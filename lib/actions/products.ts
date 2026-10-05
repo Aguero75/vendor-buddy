@@ -18,6 +18,7 @@ type ProductInput =
         category: string | null;
         imageUrl: string | null;
         price: Prisma.Decimal;
+        stock: number | null;
       };
     }
   | { error: string };
@@ -38,13 +39,26 @@ function getProductInput(formData: FormData): ProductInput {
   const category = String(formData.get("category") ?? "").trim();
   const imageUrl = String(formData.get("imageUrl") ?? "").trim();
   const price = Number(formData.get("price"));
+  const rawStock = String(formData.get("stock") ?? "").trim();
+  const stock = rawStock === "" ? null : Number(rawStock);
 
   if (!name) {
     return { error: "Product name is required." };
   }
 
-  if (!Number.isFinite(price) || price <= 0) {
+  if (
+    !Number.isFinite(price) ||
+    price <= 0 ||
+    price > 99_999_999.99
+  ) {
     return { error: "Enter a valid price greater than zero." };
+  }
+
+  if (
+    stock !== null &&
+    (!Number.isSafeInteger(stock) || stock < 0 || stock > 1_000_000_000)
+  ) {
+    return { error: "Stock must be a whole number between 0 and 1,000,000,000." };
   }
 
   return {
@@ -54,6 +68,7 @@ function getProductInput(formData: FormData): ProductInput {
       category: category || null,
       imageUrl: imageUrl || null,
       price: new Prisma.Decimal(price.toFixed(2)),
+      stock,
     },
   };
 }
@@ -75,10 +90,17 @@ export async function createProduct(
     }
 
     const product = await prisma.product.create({
-      data: { ...input.value, vendorId: vendor.id },
+      data: {
+        ...input.value,
+        vendorId: vendor.id,
+        inStock: input.value.stock === null || input.value.stock > 0,
+        zeroSince: input.value.stock === 0 ? new Date() : null,
+      },
       select: { id: true },
     });
 
+    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/products");
     return { ok: true, data: product };
   } catch {
@@ -103,15 +125,41 @@ export async function updateProduct(
       return { ok: false, message: input.error };
     }
 
-    const product = await prisma.product.updateMany({
-      where: { id: productId, vendorId: vendor.id },
-      data: input.value,
+    const updated = await prisma.$transaction(async (tx) => {
+      const [existing] = await tx.$queryRaw<
+        { inStock: boolean; stock: number | null; zeroSince: Date | null }[]
+      >`SELECT "inStock", "stock", "zeroSince" FROM "Product"
+        WHERE "id" = ${productId} AND "vendorId" = ${vendor.id}
+        FOR UPDATE`;
+      if (!existing) return false;
+
+      await tx.product.update({
+        where: { id: productId },
+        data: {
+          ...input.value,
+          inStock:
+            input.value.stock === null
+              ? existing.stock === null
+                ? existing.inStock
+                : true
+              : input.value.stock > 0,
+          zeroSince:
+            input.value.stock !== 0
+              ? null
+              : existing.stock === 0 && existing.zeroSince
+                ? existing.zeroSince
+                : new Date(),
+        },
+      });
+      return true;
     });
 
-    if (product.count === 0) {
+    if (!updated) {
       return { ok: false, message: "Product not found." };
     }
 
+    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/products");
     revalidatePath(`/dashboard/products/${productId}`);
     return { ok: true, data: { id: productId } };
@@ -136,6 +184,8 @@ export async function deleteProduct(productId: string): Promise<ActionResult> {
       return { ok: false, message: "Product not found." };
     }
 
+    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/products");
     return { ok: true };
   } catch {
@@ -155,11 +205,17 @@ export async function toggleProductStock(
 
     const product = await prisma.product.findFirst({
       where: { id: productId, vendorId: vendor.id },
-      select: { inStock: true },
+      select: { inStock: true, stock: true },
     });
 
     if (!product) {
       return { ok: false, message: "Product not found." };
+    }
+    if (product.stock !== null) {
+      return {
+        ok: false,
+        message: "Set the tracked quantity in Edit product instead.",
+      };
     }
 
     const updated = await prisma.product.update({
@@ -168,6 +224,8 @@ export async function toggleProductStock(
       select: { inStock: true },
     });
 
+    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/products");
     return { ok: true, data: updated };
   } catch {

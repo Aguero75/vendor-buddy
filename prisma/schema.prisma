@@ -4,13 +4,25 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
+}
+
+enum PaymentMethod {
+  MANUAL
+  PAYSTACK
+  CRYPTO
 }
 
 enum ReceiptStatus {
   PENDING
   PAID
   FAILED
+  PARTIAL
+  VOIDED
+}
+
+enum OtpPurpose {
+  VOID_RECEIPT
+  CHANGE_EMAIL
 }
 
 model Vendor {
@@ -27,7 +39,20 @@ model Vendor {
   createdAt        DateTime          @default(now())
   products         Product[]
   receipts         Receipt[]
+  settings         Settings?
+  securityOtps     SecurityOtp[]
   receiptLineItems ReceiptLineItem[]
+}
+
+model Settings {
+  id                   String    @id @default(cuid())
+  vendorId             String    @unique
+  vendor               Vendor    @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  ownerEmail           String?
+  lowStockThreshold    Int       @default(5)
+  availableForBookings Boolean   @default(false)
+  fxRate               Decimal?  @db.Decimal(14, 4)
+  fxRateAt             DateTime?
 }
 
 model Product {
@@ -40,6 +65,8 @@ model Product {
   price       Decimal           @db.Decimal(10, 2)
   imageUrl    String?
   inStock     Boolean           @default(true)
+  stock       Int?
+  zeroSince   DateTime?
   createdAt   DateTime          @default(now())
   updatedAt   DateTime          @updatedAt
   lineItems   ReceiptLineItem[]
@@ -49,21 +76,40 @@ model Product {
 }
 
 model Receipt {
-  id           String            @id @default(cuid())
-  vendorId     String
-  vendor       Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
-  customerName String?
-  email        String?
-  phone        String?
-  paystackRef  String?           @unique
-  status       ReceiptStatus     @default(PAID)
-  paidAt       DateTime?
-  total        Decimal           @db.Decimal(10, 2)
-  createdAt    DateTime          @default(now())
-  lineItems    ReceiptLineItem[]
+  id              String            @id @default(cuid())
+  vendorId        String
+  vendor          Vendor            @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  customerName    String?
+  email           String?
+  phone           String?
+  paystackRef     String?           @unique
+  method          PaymentMethod     @default(MANUAL)
+  status          ReceiptStatus     @default(PAID)
+  paidAt          DateTime?
+  total           Decimal           @db.Decimal(10, 2)
+  nowpaymentsId   String?
+  invoiceAmount   Decimal?          @db.Decimal(14, 4)
+  invoiceCurrency String?
+  cryptoCurrency  String?
+  cryptoAmount    Decimal?          @db.Decimal(36, 18)
+  stockApplied    Boolean           @default(false)
+  customerKey     String?
+  fxRate          Decimal?          @db.Decimal(14, 4)
+  needsReview     Boolean           @default(false)
+  reviewNote      String?
+  reviewedAt      DateTime?
+  reviewedBy      String?
+  voidedAt        DateTime?
+  voidedBy        String?
+  voidReason      String?
+  createdAt       DateTime          @default(now())
+  lineItems       ReceiptLineItem[]
 
   @@index([vendorId])
   @@index([vendorId, createdAt])
+  @@index([status, paidAt])
+  @@index([customerKey])
+  @@index([needsReview])
 }
 
 model ReceiptLineItem {
@@ -81,4 +127,22 @@ model ReceiptLineItem {
   @@index([vendorId])
   @@index([receiptId])
   @@index([productId])
+}
+
+model SecurityOtp {
+  id          String     @id @default(cuid())
+  vendorId    String
+  vendor      Vendor     @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  purpose     OtpPurpose
+  targetId    String
+  payload     String?
+  codeHash    String
+  codeHash2   String?
+  requestedBy String
+  expiresAt   DateTime
+  attempts    Int        @default(0)
+  usedAt      DateTime?
+  createdAt   DateTime   @default(now())
+
+  @@index([vendorId, purpose, targetId])
 }

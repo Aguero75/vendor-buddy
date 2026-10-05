@@ -2,8 +2,8 @@ import "server-only";
 
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { ReceiptStatus } from "@prisma/client";
-import { revalidatePath } from "next/cache";
 
+import { flagForReview, settlePayment } from "@/lib/receipts";
 import { prisma } from "@/lib/prisma";
 
 const PAYSTACK_API_URL = "https://api.paystack.co";
@@ -132,10 +132,18 @@ export async function verifyAndMarkReceiptPaid(reference: string) {
 
   const receipt = await prisma.receipt.findUnique({
     where: { paystackRef: reference },
-    select: { id: true, status: true, total: true },
+    select: { id: true, status: true, total: true, method: true },
   });
 
-  if (!receipt || !receipt.total.mul(100).equals(payment.amount)) {
+  if (!receipt || receipt.method !== "PAYSTACK") {
+    return false;
+  }
+
+  if (!receipt.total.mul(100).equals(payment.amount)) {
+    await flagForReview(
+      receipt.id,
+      `Paystack reported a successful charge for ${payment.amount / 100} NGN, but the expected order total is ${receipt.total} NGN.`,
+    );
     return false;
   }
 
@@ -143,21 +151,5 @@ export async function verifyAndMarkReceiptPaid(reference: string) {
     return true;
   }
 
-  const updated = await prisma.receipt.updateMany({
-    where: { id: receipt.id, status: ReceiptStatus.PENDING },
-    data: { status: ReceiptStatus.PAID, paidAt: new Date() },
-  });
-
-  if (updated.count > 0) {
-    revalidatePath("/dashboard");
-    revalidatePath("/dashboard/receipts");
-    return true;
-  }
-
-  const current = await prisma.receipt.findUnique({
-    where: { id: receipt.id },
-    select: { status: true },
-  });
-
-  return current?.status === ReceiptStatus.PAID;
+  return settlePayment(receipt.id, "Paystack");
 }

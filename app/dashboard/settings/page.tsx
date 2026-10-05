@@ -7,6 +7,7 @@ export default async function SettingsPage() {
   const vendor = await prisma.vendor.findFirst({
     orderBy: { createdAt: "asc" },
     select: {
+      id: true,
       businessName: true,
       motto: true,
       whatsappNumber: true,
@@ -18,6 +19,16 @@ export default async function SettingsPage() {
       tiktokUrl: true,
     },
   });
+  const ownerSettings = vendor
+    ? await prisma.settings.findUnique({
+        where: { vendorId: vendor.id },
+        select: {
+          ownerEmail: true,
+          lowStockThreshold: true,
+          availableForBookings: true,
+        },
+      })
+    : null;
 
   if (!vendor) {
     return (
@@ -45,7 +56,15 @@ export default async function SettingsPage() {
           </p>
         </header>
         <div className="rounded-xl border border-border bg-card p-5 sm:p-8">
-          <SettingsForm settings={vendor} />
+          <SettingsForm
+            settings={{
+              ...vendor,
+              ownerEmail: ownerSettings?.ownerEmail ?? null,
+              lowStockThreshold: ownerSettings?.lowStockThreshold ?? 5,
+              availableForBookings:
+                ownerSettings?.availableForBookings ?? false,
+            }}
+          />
         </div>
       </div>
     </main>

@@ -14,10 +14,19 @@ function formatPrice(price: number) {
   }).format(price);
 }
 
-export function CheckoutForm({ failed }: { failed: boolean }) {
+export function CheckoutForm({
+  failed,
+  cryptoAvailable,
+  cryptoFxRate,
+}: {
+  failed: boolean;
+  cryptoAvailable: boolean;
+  cryptoFxRate: number | null;
+}) {
   const { lines, total, isHydrated } = useCart();
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [method, setMethod] = useState<"PAYSTACK" | "CRYPTO">("PAYSTACK");
   const [error, setError] = useState(
     failed ? "Payment wasn't completed. Your cart is still here." : "",
   );
@@ -32,6 +41,7 @@ export function CheckoutForm({ failed }: { failed: boolean }) {
         lines.map(({ id, quantity }) => ({ id, quantity })),
         email,
         phone,
+        method,
       );
 
       if (!result.ok || !result.data?.authorizationUrl) {
@@ -97,6 +107,62 @@ export function CheckoutForm({ failed }: { failed: boolean }) {
         </label>
       </div>
 
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-medium">Payment method</legend>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4 has-[:checked]:border-foreground has-[:checked]:bg-muted/40">
+            <input
+              type="radio"
+              name="paymentMethod"
+              value="PAYSTACK"
+              checked={method === "PAYSTACK"}
+              onChange={() => setMethod("PAYSTACK")}
+              className="mt-1 accent-foreground"
+            />
+            <span>
+              <span className="block text-sm font-semibold">Paystack</span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                Pay securely with your card or bank.
+              </span>
+            </span>
+          </label>
+          {cryptoAvailable ? (
+            <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-4 has-[:checked]:border-foreground has-[:checked]:bg-muted/40">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="CRYPTO"
+                checked={method === "CRYPTO"}
+                onChange={() => setMethod("CRYPTO")}
+                className="mt-1 accent-foreground"
+              />
+              <span>
+                <span className="block text-sm font-semibold">Crypto</span>
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  Continue to the secure NOWPayments invoice
+                  {cryptoFxRate
+                    ? ` (about $${(total / cryptoFxRate).toFixed(2)} USD).`
+                    : "."}
+                </span>
+              </span>
+            </label>
+          ) : null}
+        </div>
+        {cryptoAvailable && cryptoFxRate ? (
+          <p className="text-xs text-muted-foreground">
+            USD estimate uses a live NGN rate.{" "}
+            <a
+              href="https://www.exchangerate-api.com"
+              target="_blank"
+              rel="noreferrer"
+              className="underline underline-offset-2 hover:text-foreground"
+            >
+              Rates By Exchange Rate API
+            </a>
+          </p>
+        ) : null}
+      </fieldset>
+
       <div className="space-y-3 border-y border-border py-5">
         <h2 className="font-semibold">Your order</h2>
         <ul className="space-y-3">
@@ -131,7 +197,9 @@ export function CheckoutForm({ failed }: { failed: boolean }) {
         disabled={isPending}
         className="w-full rounded-lg bg-foreground px-4 py-3 text-sm font-semibold text-background transition-opacity hover:opacity-85 disabled:cursor-wait disabled:opacity-60"
       >
-        {isPending ? "Preparing secure payment…" : "Continue to Paystack"}
+        {isPending
+          ? "Preparing secure payment…"
+          : `Continue to ${method === "CRYPTO" ? "Crypto" : "Paystack"}`}
       </button>
     </form>
   );

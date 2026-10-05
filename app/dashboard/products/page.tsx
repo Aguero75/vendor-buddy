@@ -18,6 +18,12 @@ export default async function ProductsPage({
     orderBy: { createdAt: "asc" },
     select: { id: true, businessName: true },
   });
+  const settings = vendor
+    ? await prisma.settings.findUnique({
+        where: { vendorId: vendor.id },
+        select: { lowStockThreshold: true },
+      })
+    : null;
 
   const [products, productCount] = vendor
     ? await Promise.all([
@@ -33,6 +39,7 @@ export default async function ProductsPage({
             category: true,
             price: true,
             inStock: true,
+            stock: true,
           },
         }),
         prisma.product.count({
@@ -70,6 +77,7 @@ export default async function ProductsPage({
         </header>
 
         <ProductList
+          lowStockThreshold={settings?.lowStockThreshold ?? 5}
           products={products.map((product) => ({
             ...product,
             price: product.price.toString(),

@@ -1,6 +1,7 @@
 import { CategoryPills } from "@/components/storefront/category-pills";
 import { CartDrawer } from "@/components/storefront/cart-drawer";
 import { CheckoutOutcome } from "@/components/storefront/checkout-outcome";
+import { BookingRequestForm } from "@/components/storefront/booking-request-form";
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -35,6 +36,7 @@ export default async function Home({
       instagramUrl: true,
       facebookUrl: true,
       tiktokUrl: true,
+      settings: { select: { availableForBookings: true } },
     },
   });
 
@@ -162,6 +164,9 @@ export default async function Home({
               }))}
             />
           </section>
+          {vendor?.settings?.availableForBookings ? (
+            <BookingRequestForm />
+          ) : null}
         </div>
       </main>
       <SiteFooter

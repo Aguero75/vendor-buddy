@@ -19,6 +19,7 @@ type ProductFormProps = {
     category: string | null;
     price: string;
     imageUrl: string | null;
+    stock: number | null;
   };
 };
 
@@ -69,6 +70,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
           <input
             required
             min="0.01"
+            max="99999999.99"
             step="0.01"
             type="number"
             name="price"
@@ -92,6 +94,23 @@ export function ProductForm({ categories, product }: ProductFormProps) {
               <option key={category} value={category} />
             ))}
           </datalist>
+        </label>
+
+        <label className="space-y-2 sm:col-span-2">
+          <span className="text-sm font-medium">Stock quantity (optional)</span>
+          <input
+            name="stock"
+            type="number"
+            min="0"
+            max="1000000000"
+            step="1"
+            defaultValue={product?.stock ?? ""}
+            placeholder="Leave blank to disable tracking"
+            className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+          />
+          <span className="block text-xs text-muted-foreground">
+            Leave blank if you do not track quantities. A tracked quantity of 0 marks the product sold out.
+          </span>
         </label>
 
         <label className="space-y-2 sm:col-span-2">

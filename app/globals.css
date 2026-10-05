@@ -341,3 +341,177 @@
     display: none;
   }
 }
+
+@layer components {
+  .site-header {
+    box-shadow: 0 8px 28px oklch(0.22 0.035 45 / 0.045);
+  }
+
+  .site-header--admin {
+    box-shadow: 0 10px 30px oklch(0.12 0.02 45 / 0.2);
+  }
+
+  .site-header--admin .nav-link {
+    color: color-mix(in oklab, var(--background), transparent 24%);
+  }
+
+  .site-header--admin .nav-link:hover,
+  .site-header--admin .icon-link:hover {
+    color: var(--background);
+    background: color-mix(in oklab, var(--background), transparent 88%);
+  }
+
+  .site-footer {
+    background-image: linear-gradient(
+      145deg,
+      color-mix(in oklab, var(--card), var(--accent) 7%),
+      color-mix(in oklab, var(--background), transparent 3%)
+    );
+  }
+
+  .product-card__media {
+    isolation: isolate;
+  }
+
+  .product-card__image {
+    transform: scale(1);
+    transition: transform 500ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .product-card:hover .product-card__image {
+    transform: scale(1.045);
+  }
+}
+
+.top-seller-label-short,
+.top-seller-label-full {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.top-seller-label-full {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .top-seller-label-short {
+    display: none;
+  }
+
+  .top-seller-label-full {
+    display: initial;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-card__image {
+    transition: none;
+  }
+
+  .product-card:hover,
+  button[class*="bg-primary"],
+  button[class*="bg-foreground"],
+  button[class*="bg-accent"] {
+    transform: none !important;
+  }
+}
+
+/* Shared finishing details for surfaces and controls across every route. */
+[class~="rounded-xl"][class~="border"][class~="border-border"][class~="bg-card"],
+[class~="rounded-2xl"][class~="border"][class~="border-border"][class~="bg-card"],
+[class~="rounded-3xl"][class~="border"][class~="border-border"][class~="bg-card"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white, transparent 38%),
+    0 1px 2px oklch(0.22 0.035 45 / 0.045),
+    0 12px 28px -20px oklch(0.22 0.035 45 / 0.24);
+}
+
+button[class*="bg-primary"],
+a[class*="bg-primary"],
+button[class*="bg-foreground"],
+a[class*="bg-foreground"],
+button[class*="bg-accent"],
+a[class*="bg-accent"] {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, white, transparent 76%),
+    0 2px 0 color-mix(in oklab, var(--foreground), transparent 72%),
+    0 6px 14px -5px color-mix(in oklab, var(--foreground), transparent 70%);
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    filter 160ms ease,
+    background-color 160ms ease,
+    color 160ms ease;
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  button:not(:disabled)[class*="bg-primary"]:hover,
+  a[class*="bg-primary"]:hover,
+  button:not(:disabled)[class*="bg-foreground"]:hover,
+  a[class*="bg-foreground"]:hover,
+  button:not(:disabled)[class*="bg-accent"]:hover,
+  a[class*="bg-accent"]:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.035);
+    box-shadow:
+      inset 0 1px 0 color-mix(in oklab, white, transparent 68%),
+      0 3px 0 color-mix(in oklab, var(--foreground), transparent 72%),
+      0 11px 20px -7px color-mix(in oklab, var(--foreground), transparent 60%);
+  }
+}
+
+button:not(:disabled)[class*="bg-primary"]:active,
+button:not(:disabled)[class*="bg-foreground"]:active,
+button:not(:disabled)[class*="bg-accent"]:active {
+  transform: translateY(1px);
+  box-shadow:
+    inset 0 1px 2px color-mix(in oklab, var(--foreground), transparent 86%),
+    0 1px 0 color-mix(in oklab, var(--foreground), transparent 78%);
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]),
+select,
+textarea {
+  box-shadow: inset 0 1px 2px oklch(0.22 0.035 45 / 0.035);
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):focus,
+select:focus,
+textarea:focus {
+  box-shadow:
+    inset 0 1px 2px oklch(0.22 0.035 45 / 0.025),
+    0 0 0 3px color-mix(in oklab, var(--ring), transparent 82%);
+}
+
+img {
+  image-rendering: auto;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+::selection {
+  color: var(--primary-foreground);
+  background: color-mix(in oklab, var(--primary), transparent 18%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  button,
+  a[class*="bg-primary"],
+  a[class*="bg-foreground"],
+  a[class*="bg-accent"],
+  input,
+  select,
+  textarea {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -57,9 +57,51 @@ export async function saveSettings(formData: FormData): Promise<ActionResult> {
     const whatsappNumber = String(formData.get("whatsappNumber") ?? "").trim();
     const logoUrl = String(formData.get("logoUrl") ?? "").trim();
     const address = String(formData.get("address") ?? "").trim();
+    const ownerEmail = String(formData.get("ownerEmail") ?? "")
+      .trim()
+      .toLowerCase();
+    const lowStockThreshold = Number(formData.get("lowStockThreshold"));
+    const availableForBookings = formData
+      .getAll("availableForBookings")
+      .includes("true");
+    const currentSettings = await prisma.settings.findUnique({
+      where: { vendorId: vendor.id },
+      select: { ownerEmail: true },
+    });
+
+    if (ownerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(ownerEmail)) {
+      return { ok: false, message: "Enter a valid owner email address." };
+    }
+    if (
+      currentSettings?.ownerEmail &&
+      ownerEmail &&
+      currentSettings.ownerEmail.toLowerCase() !== ownerEmail
+    ) {
+      return {
+        ok: false,
+        message:
+          "Use the Change email verification flow to update this address.",
+      };
+    }
 
     if (!businessName) {
       return { ok: false, message: "Business name is required." };
+    }
+    if (
+      !Number.isSafeInteger(lowStockThreshold) ||
+      lowStockThreshold < 0 ||
+      lowStockThreshold > 1_000_000
+    ) {
+      return {
+        ok: false,
+        message: "Low-stock threshold must be a whole number from 0 to 1,000,000.",
+      };
+    }
+    if (availableForBookings && !currentSettings?.ownerEmail && !ownerEmail) {
+      return {
+        ok: false,
+        message: "Add an owner email before accepting booking requests.",
+      };
     }
 
     if (!isValidWhatsAppNumber(whatsappNumber)) {
@@ -96,25 +138,45 @@ export async function saveSettings(formData: FormData): Promise<ActionResult> {
       };
     }
 
-    await prisma.vendor.update({
-      where: { id: vendor.id },
-      data: {
-        businessName,
-        motto: motto || null,
-        whatsappNumber: whatsappNumber.replace(/[\s()-]/g, ""),
-        logoUrl: logoUrl || null,
-        address: address || null,
-        mapUrl: mapUrl.value,
-        instagramUrl: instagramUrl.value,
-        facebookUrl: facebookUrl.value,
-        tiktokUrl: tiktokUrl.value,
-      },
+    await prisma.$transaction(async (tx) => {
+      await tx.vendor.update({
+        where: { id: vendor.id },
+        data: {
+          businessName,
+          motto: motto || null,
+          whatsappNumber: whatsappNumber.replace(/[\s()-]/g, ""),
+          logoUrl: logoUrl || null,
+          address: address || null,
+          mapUrl: mapUrl.value,
+          instagramUrl: instagramUrl.value,
+          facebookUrl: facebookUrl.value,
+          tiktokUrl: tiktokUrl.value,
+        },
+      });
+      await tx.settings.upsert({
+        where: { vendorId: vendor.id },
+        update: {
+          lowStockThreshold,
+          availableForBookings,
+          ...(ownerEmail && !currentSettings?.ownerEmail
+            ? { ownerEmail }
+            : {}),
+        },
+        create: {
+          vendorId: vendor.id,
+          lowStockThreshold,
+          availableForBookings,
+          ownerEmail: ownerEmail || null,
+        },
+      });
     });
 
     revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/dashboard/settings");
     return { ok: true };
-  } catch {
+  } catch (error) {
+    console.error("Store settings update failed.", error);
     return { ok: false, message: "Couldn't update settings. Try again." };
   }
 }

@@ -87,13 +87,13 @@ The required variable names are listed in `.env.example`:
 | ----------------------------------- | ------------------------------------ |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk browser key                    |
 | `CLERK_SECRET_KEY`                  | Clerk server key                     |
-| `ADMIN_CLERK_USER_ID`               | Optional explicit admin user ID      |
+| `ADMIN_CLERK_USER_ID`               | Optional Clerk user ID or verified email for the admin |
 | `DATABASE_URL`                      | PostgreSQL connection string         |
 | `UPLOADTHING_TOKEN`                 | UploadThing server token             |
 | `PAYSTACK_SECRET_KEY`               | Paystack server-side API key         |
 | `NEXT_PUBLIC_SITE_URL`              | Public base URL for payment callback |
 
-When `ADMIN_CLERK_USER_ID` is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration.
+Set `ADMIN_CLERK_USER_ID` in `.env.local` to the Clerk user ID (`user_...`) or a verified email address on the admin's Clerk account, then restart the dev server. Do not put this setting only in `.env.template` or `.env.example`; Next.js does not load those template files. When the setting is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration. Successful sign-in opens the dashboard; non-admin accounts are redirected to the storefront.
 
 ## Useful Commands
 

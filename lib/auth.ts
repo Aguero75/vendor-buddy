@@ -6,7 +6,7 @@ type AdminCheck =
   | { authorized: false; userId: null };
 
 async function getAdminUserId() {
-  const configuredAdminId = process.env.ADMIN_CLERK_USER_ID;
+  const configuredAdminId = process.env.ADMIN_CLERK_USER_ID?.trim();
 
   if (configuredAdminId) {
     return configuredAdminId;
@@ -28,7 +28,25 @@ export async function checkAdmin(): Promise<AdminCheck> {
     return { authorized: false, userId: null };
   }
 
-  const adminUserId = await getAdminUserId();
+  const configuredAdmin = process.env.ADMIN_CLERK_USER_ID?.trim();
+  if (configuredAdmin === userId) {
+    return { authorized: true, userId };
+  }
+
+  if (configuredAdmin && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(configuredAdmin)) {
+    const client = await clerkClient();
+    const user = await client.users.getUser(userId);
+    const authorized = user.emailAddresses.some(
+      (email) =>
+        email.emailAddress.toLowerCase() === configuredAdmin.toLowerCase() &&
+        email.verification?.status === "verified",
+    );
+    return authorized
+      ? { authorized: true, userId }
+      : { authorized: false, userId: null };
+  }
+
+  const adminUserId = configuredAdmin ?? (await getAdminUserId());
 
   return adminUserId === userId
     ? { authorized: true, userId }
