@@ -1,4 +1,8 @@
 import Link from "next/link";
+import {
+  PlusIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react/ssr";
 
 import { SalesAnalytics } from "@/components/dashboard/sales-analytics";
 import { StockAlertsCard } from "@/components/dashboard/stock-alerts-card";
@@ -58,8 +62,9 @@ export default async function DashboardPage({
             </div>
             <Link
               href="/dashboard/receipts/new"
-              className="inline-flex h-10 items-center justify-center rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-accent px-4 text-sm font-bold text-accent-foreground transition-transform hover:-translate-y-0.5"
             >
+              <PlusIcon className="size-4" weight="bold" aria-hidden="true" />
               New receipt
             </Link>
           </div>
@@ -72,16 +77,26 @@ export default async function DashboardPage({
             {attention.review > 0 ? (
               <Link
                 href="/dashboard/receipts?status=review"
-                className="block rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
+                className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
               >
+                <WarningCircleIcon
+                  className="size-5 shrink-0 text-amber-700"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
                 {attention.review} payment{attention.review === 1 ? "" : "s"} need your review.
               </Link>
             ) : null}
             {attention.partial > 0 ? (
               <Link
                 href="/dashboard/receipts?status=partial"
-                className="block rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
+                className="flex items-center gap-2 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-950 transition-colors hover:bg-amber-100"
               >
+                <WarningCircleIcon
+                  className="size-5 shrink-0 text-amber-700"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
                 {attention.partial} crypto payment{attention.partial === 1 ? "" : "s"} {attention.partial === 1 ? "is" : "are"} partially paid.
               </Link>
             ) : null}

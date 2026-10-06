@@ -3,6 +3,15 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Menu, ShoppingBag, X } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  GearSixIcon,
+  HouseIcon,
+  ListIcon,
+  PackageIcon,
+  ReceiptIcon,
+  XIcon,
+} from "@phosphor-icons/react";
 
 import { SignOutButton } from "@/components/dashboard/sign-out-button";
 
@@ -65,14 +74,21 @@ export function SiteHeader({
 }
 
 const dashboardLinks = [
-  { href: "/dashboard", label: "Overview" },
-  { href: "/dashboard/products", label: "Products" },
-  { href: "/dashboard/receipts", label: "Receipts" },
-  { href: "/dashboard/settings", label: "Settings" },
+  { href: "/dashboard", label: "Overview", icon: HouseIcon },
+  { href: "/dashboard/products", label: "Products", icon: PackageIcon },
+  { href: "/dashboard/receipts", label: "Receipts", icon: ReceiptIcon },
+  { href: "/dashboard/settings", label: "Settings", icon: GearSixIcon },
 ];
 
 export function DashboardHeader() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
+
+  function isActive(href: string) {
+    return href === "/dashboard"
+      ? pathname === href
+      : pathname === href || pathname.startsWith(`${href}/`);
+  }
 
   return (
     <header className="site-header site-header--admin">
@@ -92,7 +108,17 @@ export function DashboardHeader() {
           aria-label="Admin navigation"
         >
           {dashboardLinks.map((link) => (
-            <Link key={link.href} href={link.href} className="nav-link">
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isActive(link.href) ? "page" : undefined}
+              className={`nav-link ${isActive(link.href) ? "bg-background/10 text-background" : ""}`}
+            >
+              <link.icon
+                className="size-4 shrink-0 text-accent"
+                weight="duotone"
+                aria-hidden="true"
+              />
               {link.label}
             </Link>
           ))}
@@ -106,7 +132,11 @@ export function DashboardHeader() {
           aria-expanded={open}
           onClick={() => setOpen((prev) => !prev)}
         >
-          {open ? <X className="size-5" /> : <Menu className="size-5" />}
+          {open ? (
+            <XIcon className="size-5" weight="bold" aria-hidden="true" />
+          ) : (
+            <ListIcon className="size-5" weight="duotone" aria-hidden="true" />
+          )}
         </button>
       </div>
 
@@ -119,9 +149,15 @@ export function DashboardHeader() {
             <Link
               key={link.href}
               href={link.href}
-              className="nav-link"
+              aria-current={isActive(link.href) ? "page" : undefined}
+              className={`nav-link ${isActive(link.href) ? "bg-background/10 text-background" : ""}`}
               onClick={() => setOpen(false)}
             >
+              <link.icon
+                className="size-4 shrink-0 text-accent"
+                weight="duotone"
+                aria-hidden="true"
+              />
               {link.label}
             </Link>
           ))}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeftIcon, PackageIcon } from "@phosphor-icons/react/ssr";
 
 import { ProductForm } from "@/components/dashboard/product-form";
 import { prisma } from "@/lib/prisma";
@@ -25,11 +26,19 @@ export default async function NewProductPage() {
         <header className="space-y-3">
           <Link
             href="/dashboard/products"
-            className="-ml-2 inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            className="-ml-2 inline-flex h-8 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
-            ← Products
+            <ArrowLeftIcon className="size-4" aria-hidden="true" />
+            Products
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight">Add product</h1>
+          <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+            <PackageIcon
+              className="size-7 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            Add product
+          </h1>
           <p className="text-muted-foreground">
             Add a catalog item and choose an existing category or type a new
             one.

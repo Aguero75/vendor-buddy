@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { SignOutIcon } from "@phosphor-icons/react";
 import { useClerk } from "@clerk/nextjs";
 import { useState } from "react";
 
@@ -21,7 +21,7 @@ export function SignOutButton() {
       disabled={isSigningOut}
       className="nav-link shrink-0 text-red-200 hover:bg-red-950/40 hover:text-red-100"
     >
-      <LogOut className="size-4" />
+      <SignOutIcon className="size-4" weight="duotone" aria-hidden="true" />
       <span>{isSigningOut ? "Logging out..." : "Log out"}</span>
     </button>
   );

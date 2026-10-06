@@ -3,6 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
+import {
+  FloppyDiskIcon,
+  PlusIcon,
+  ReceiptIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 import { createReceipt } from "@/lib/actions/receipts";
@@ -116,15 +122,24 @@ export function ReceiptForm({ products }: { products: ProductOption[] }) {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <h2 className="font-semibold">Items</h2>
+          <h2 className="flex items-center gap-2 font-semibold">
+            <ReceiptIcon
+              className="size-5 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            Items
+          </h2>
           <Button
             type="button"
             variant="outline"
+            className="gap-2"
             onClick={() => {
               setLines((currentLines) => [...currentLines, newLine(nextKey)]);
               setNextKey((currentKey) => currentKey + 1);
             }}
           >
+            <PlusIcon className="size-4" weight="bold" aria-hidden="true" />
             Add item
           </Button>
         </div>
@@ -201,6 +216,7 @@ export function ReceiptForm({ products }: { products: ProductOption[] }) {
             <Button
               type="button"
               variant="ghost"
+              className="gap-2"
               onClick={() =>
                 setLines((currentLines) =>
                   currentLines.length === 1
@@ -211,6 +227,11 @@ export function ReceiptForm({ products }: { products: ProductOption[] }) {
               disabled={lines.length === 1}
               aria-label={`Remove item ${index + 1}`}
             >
+              <TrashIcon
+                className="size-4"
+                weight="duotone"
+                aria-hidden="true"
+              />
               Remove
             </Button>
           </div>
@@ -223,6 +244,11 @@ export function ReceiptForm({ products }: { products: ProductOption[] }) {
           {total.toLocaleString("en-NG", { minimumFractionDigits: 2 })}
         </p>
         <Button type="submit" disabled={isPending} size="lg">
+          <FloppyDiskIcon
+            className="size-4"
+            weight="duotone"
+            aria-hidden="true"
+          />
           {isPending ? "Saving..." : "Save receipt"}
         </Button>
       </div>

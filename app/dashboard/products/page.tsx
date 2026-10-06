@@ -1,4 +1,10 @@
 import Link from "next/link";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  PackageIcon,
+  PlusIcon,
+} from "@phosphor-icons/react/ssr";
 
 import { ProductList } from "@/components/dashboard/product-list";
 import { prisma } from "@/lib/prisma";
@@ -56,22 +62,31 @@ export default async function ProductsPage({
           <div className="space-y-2">
             <Link
               href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
-              ← Dashboard
+              <ArrowLeftIcon className="size-4" aria-hidden="true" />
+              Dashboard
             </Link>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
               {vendor?.businessName ?? "Vendor Buddy"}
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight">Products</h1>
+            <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+              <PackageIcon
+                className="size-7 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
+              Products
+            </h1>
             <p className="text-muted-foreground">
               Manage what customers can see and buy.
             </p>
           </div>
           <Link
             href="/dashboard/products/new"
-            className="inline-flex h-8 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+            className="inline-flex h-8 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
           >
+            <PlusIcon className="size-4" weight="bold" aria-hidden="true" />
             Add product
           </Link>
         </header>
@@ -89,8 +104,9 @@ export default async function ProductsPage({
             {page > 1 ? (
               <Link
                 href={`/dashboard/products?page=${page - 1}`}
-                className="text-sm font-medium hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
               >
+                <ArrowLeftIcon className="size-4" aria-hidden="true" />
                 Previous
               </Link>
             ) : (
@@ -104,9 +120,10 @@ export default async function ProductsPage({
             {page < pageCount ? (
               <Link
                 href={`/dashboard/products?page=${page + 1}`}
-                className="text-sm font-medium hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
               >
                 Next
+                <ArrowRightIcon className="size-4" aria-hidden="true" />
               </Link>
             ) : (
               <span />

@@ -4,6 +4,7 @@ import domToImage from "dom-to-image-more";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import { toast } from "react-toastify";
+import { DownloadSimpleIcon, ShareNetworkIcon } from "@phosphor-icons/react";
 
 import { Button } from "@/components/ui/button";
 
@@ -215,7 +216,17 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
       </div>
 
       <div className="flex flex-wrap gap-3">
-        <Button type="button" onClick={handleDownload} disabled={isWorking}>
+        <Button
+          type="button"
+          onClick={handleDownload}
+          disabled={isWorking}
+          className="gap-2"
+        >
+          <DownloadSimpleIcon
+            className="size-4"
+            weight="duotone"
+            aria-hidden="true"
+          />
           Download PNG
         </Button>
         <Button
@@ -223,7 +234,13 @@ export function ReceiptCard({ receipt }: { receipt: ReceiptCardData }) {
           variant="outline"
           onClick={handleShare}
           disabled={isWorking}
+          className="gap-2"
         >
+          <ShareNetworkIcon
+            className="size-4"
+            weight="duotone"
+            aria-hidden="true"
+          />
           Share
         </Button>
       </div>

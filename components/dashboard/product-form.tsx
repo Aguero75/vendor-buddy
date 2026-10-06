@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "react-toastify";
 import { UploadButton } from "@uploadthing/react";
+import { FloppyDiskIcon } from "@phosphor-icons/react";
 
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { Button } from "@/components/ui/button";
@@ -168,7 +169,17 @@ export function ProductForm({ categories, product }: ProductFormProps) {
       </div>
 
       <div className="flex flex-wrap items-center gap-3 border-t border-border pt-5">
-        <Button type="submit" disabled={isPending} size="lg">
+        <Button
+          type="submit"
+          disabled={isPending}
+          size="lg"
+          className="gap-2"
+        >
+          <FloppyDiskIcon
+            className="size-4"
+            weight="duotone"
+            aria-hidden="true"
+          />
           {isPending ? "Saving..." : isEditing ? "Save changes" : "Add product"}
         </Button>
         <Button

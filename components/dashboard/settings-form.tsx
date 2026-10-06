@@ -5,6 +5,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { UploadButton } from "@uploadthing/react";
+import { FloppyDiskIcon } from "@phosphor-icons/react";
 
 import type { OurFileRouter } from "@/app/api/uploadthing/core";
 import { Button } from "@/components/ui/button";
@@ -302,7 +303,17 @@ export function SettingsForm({ settings }: SettingsFormProps) {
       </div>
 
       <div className="border-t border-border pt-5">
-        <Button type="submit" disabled={isPending} size="lg">
+        <Button
+          type="submit"
+          disabled={isPending}
+          size="lg"
+          className="gap-2"
+        >
+          <FloppyDiskIcon
+            className="size-4"
+            weight="duotone"
+            aria-hidden="true"
+          />
           {isPending ? "Saving..." : "Save settings"}
         </Button>
       </div>

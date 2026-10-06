@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { toast } from "react-toastify";
-import { Pencil, Power, Trash2 } from "lucide-react";
+import {
+  PackageIcon,
+  PencilSimpleIcon,
+  PlusIcon,
+  PowerIcon,
+  TrashIcon,
+} from "@phosphor-icons/react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import { deleteProduct, toggleProductStock } from "@/lib/actions/products";
@@ -159,14 +165,22 @@ export function ProductList({
   if (products.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-border bg-muted/30 px-6 py-14 text-center">
-        <h2 className="text-lg font-semibold">No products yet</h2>
+        <h2 className="flex items-center justify-center gap-2 text-lg font-semibold">
+          <PackageIcon
+            className="size-5 text-primary"
+            weight="duotone"
+            aria-hidden="true"
+          />
+          No products yet
+        </h2>
         <p className="mt-2 text-sm text-muted-foreground">
           Add your first product to start building the catalog.
         </p>
         <Link
           href="/dashboard/products/new"
-          className={`${buttonVariants()} mt-5`}
+          className={`${buttonVariants()} mt-5 gap-2`}
         >
+          <PlusIcon className="size-4" weight="bold" aria-hidden="true" />
           Add product
         </Link>
       </div>
@@ -225,7 +239,11 @@ export function ProductList({
                 aria-label={`Edit ${product.name}`}
                 className={buttonVariants({ variant: "outline", size: "sm" })}
               >
-                <Pencil />
+                <PencilSimpleIcon
+                  className="size-4"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
                 <span className="sr-only sm:not-sr-only">Edit</span>
               </Link>
               <Button
@@ -241,7 +259,11 @@ export function ProductList({
                     : undefined
                 }
               >
-                <Power />
+                <PowerIcon
+                  className="size-4"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
                 <span className="sr-only sm:not-sr-only">Stock</span>
               </Button>
               <Button
@@ -252,7 +274,11 @@ export function ProductList({
                 onClick={() => handleDelete(product)}
                 aria-label={`Delete ${product.name}`}
               >
-                <Trash2 />
+                <TrashIcon
+                  className="size-4"
+                  weight="duotone"
+                  aria-hidden="true"
+                />
                 <span className="sr-only sm:not-sr-only">Delete</span>
               </Button>
             </div>

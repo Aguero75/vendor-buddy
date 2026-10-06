@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeftIcon, GearSixIcon } from "@phosphor-icons/react/ssr";
 
 import { SettingsForm } from "@/components/dashboard/settings-form";
 import { prisma } from "@/lib/prisma";
@@ -46,11 +47,19 @@ export default async function SettingsPage() {
         <header className="space-y-3">
           <Link
             href="/dashboard"
-            className="inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+            className="inline-flex h-8 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium text-foreground transition-colors hover:bg-muted"
           >
-            ← Dashboard
+            <ArrowLeftIcon className="size-4" aria-hidden="true" />
+            Dashboard
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight">Settings</h1>
+          <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+            <GearSixIcon
+              className="size-7 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            Settings
+          </h1>
           <p className="text-muted-foreground">
             Keep your storefront identity and checkout contact details current.
           </p>

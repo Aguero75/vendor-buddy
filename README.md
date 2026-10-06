@@ -91,7 +91,7 @@ The required variable names are listed in `.env.example`:
 | `DATABASE_URL`                      | PostgreSQL connection string         |
 | `UPLOADTHING_TOKEN`                 | UploadThing server token             |
 | `PAYSTACK_SECRET_KEY`               | Paystack server-side API key         |
-| `NEXT_PUBLIC_SITE_URL`              | Public base URL for payment callback |
+| `NEXT_PUBLIC_SITE_URL`              | Public base URL for payment callbacks, canonical metadata, and the sitemap |
 
 Set `ADMIN_CLERK_USER_ID` in `.env.local` to the Clerk user ID (`user_...`) or a verified email address on the admin's Clerk account, then restart the dev server. Do not put this setting only in `.env.template` or `.env.example`; Next.js does not load those template files. When the setting is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration. Successful sign-in opens the dashboard; non-admin accounts are redirected to the storefront.
 
@@ -151,7 +151,7 @@ For a Vercel deployment:
 1. Import the repository into Vercel.
 2. Add the environment variables from `.env.local` to the Vercel project settings.
 3. Use a production PostgreSQL database and run `npx prisma migrate deploy` during deployment or as a release step.
-4. Set `PAYSTACK_SECRET_KEY` and `NEXT_PUBLIC_SITE_URL` in the deployment environment.
+4. Set `PAYSTACK_SECRET_KEY` and `NEXT_PUBLIC_SITE_URL` in the deployment environment. Use the canonical public HTTPS URL; it is used for payment callbacks, storefront metadata, and `robots.txt`/`sitemap.xml`.
 5. Configure `https://your-domain/api/paystack/webhook` as the Paystack webhook URL.
 6. Configure the production URL in Clerk and UploadThing, and confirm UploadThing is configured for production.
 

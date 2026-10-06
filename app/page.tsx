@@ -6,10 +6,46 @@ import { ProductGrid } from "@/components/storefront/product-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import Image from "next/image";
+import type { Metadata } from "next";
 import hero from "@/public/undraw_online-revenue_6egl.svg";
 import { prisma } from "@/lib/prisma";
 
 const UNCATEGORIZED = "uncategorized";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const vendor = await prisma.vendor.findFirst({
+    orderBy: { createdAt: "asc" },
+    select: {
+      businessName: true,
+      motto: true,
+      logoUrl: true,
+    },
+  });
+  const businessName = vendor?.businessName || "Vendor Buddy";
+  const description =
+    vendor?.motto?.trim() ||
+    `Browse products and shop online from ${businessName}. Discover the latest selection and order directly from the store.`;
+  const title = `${businessName} — Shop online`;
+
+  return {
+    title: { absolute: title },
+    description,
+    alternates: { canonical: "/" },
+    keywords: [businessName, "shop online", "local business", "Nigeria"],
+    openGraph: {
+      type: "website",
+      title,
+      description,
+      images: vendor?.logoUrl ? [{ url: vendor.logoUrl, alt: businessName }] : [],
+    },
+    twitter: {
+      card: vendor?.logoUrl ? "summary_large_image" : "summary",
+      title,
+      description,
+      images: vendor?.logoUrl ? [vendor.logoUrl] : [],
+    },
+  };
+}
 
 export default async function Home({
   searchParams,

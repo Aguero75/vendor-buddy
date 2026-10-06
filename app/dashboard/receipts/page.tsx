@@ -1,5 +1,13 @@
 import Link from "next/link";
 import { Prisma, ReceiptStatus } from "@prisma/client";
+import {
+  ArrowLeftIcon,
+  ArrowRightIcon,
+  MagnifyingGlassIcon,
+  PlusIcon,
+  ReceiptIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react/ssr";
 
 import { MarkReviewedButton } from "@/components/dashboard/mark-reviewed-button";
 import { SalesAnalytics } from "@/components/dashboard/sales-analytics";
@@ -140,22 +148,31 @@ export default async function ReceiptsPage({
           <div className="space-y-2">
             <Link
               href="/dashboard"
-              className="text-sm text-muted-foreground hover:text-foreground"
+              className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
             >
-              ← Dashboard
+              <ArrowLeftIcon className="size-4" aria-hidden="true" />
+              Dashboard
             </Link>
             <p className="text-sm font-medium uppercase tracking-[0.18em] text-muted-foreground">
               {vendor?.businessName ?? "Vendor Buddy"}
             </p>
-            <h1 className="text-3xl font-semibold tracking-tight">Receipts</h1>
+            <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+              <ReceiptIcon
+                className="size-7 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
+              Receipts
+            </h1>
             <p className="text-muted-foreground">
               Create and review saved sales.
             </p>
           </div>
           <Link
             href="/dashboard/receipts/new"
-            className="inline-flex h-9 items-center justify-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+            className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
           >
+            <PlusIcon className="size-4" weight="bold" aria-hidden="true" />
             New receipt
           </Link>
         </header>
@@ -199,8 +216,9 @@ export default async function ReceiptsPage({
           </label>
           <button
             type="submit"
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+            className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
           >
+            <MagnifyingGlassIcon className="size-4" aria-hidden="true" />
             Search
           </button>
           {search || status !== "paid" ? (
@@ -254,7 +272,12 @@ export default async function ReceiptsPage({
                         {receipt.status}
                       </span>
                       {receipt.needsReview ? (
-                        <span className="rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-900">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-900">
+                          <WarningCircleIcon
+                            className="size-3.5"
+                            weight="duotone"
+                            aria-hidden="true"
+                          />
                           Needs review
                         </span>
                       ) : null}
@@ -313,8 +336,9 @@ export default async function ReceiptsPage({
                   ...(status !== "paid" ? { status } : {}),
                   page: String(page - 1),
                 }).toString()}`}
-                className="text-sm font-medium hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
               >
+                <ArrowLeftIcon className="size-4" aria-hidden="true" />
                 Previous
               </Link>
             ) : (
@@ -332,9 +356,10 @@ export default async function ReceiptsPage({
                   ...(status !== "paid" ? { status } : {}),
                   page: String(page + 1),
                 }).toString()}`}
-                className="text-sm font-medium hover:underline"
+                className="inline-flex items-center gap-1 text-sm font-medium hover:underline"
               >
                 Next
+                <ArrowRightIcon className="size-4" aria-hidden="true" />
               </Link>
             ) : (
               <span />

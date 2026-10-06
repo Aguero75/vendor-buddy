@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeftIcon, ReceiptIcon } from "@phosphor-icons/react/ssr";
 
 import { ReceiptForm } from "@/components/dashboard/receipt-form";
 import { prisma } from "@/lib/prisma";
@@ -22,11 +23,19 @@ export default async function NewReceiptPage() {
         <header className="space-y-3">
           <Link
             href="/dashboard/receipts"
-            className="-ml-2 inline-flex h-8 items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors hover:bg-muted"
+            className="-ml-2 inline-flex h-8 items-center justify-center gap-2 rounded-lg px-3 text-sm font-medium transition-colors hover:bg-muted"
           >
-            ← Receipts
+            <ArrowLeftIcon className="size-4" aria-hidden="true" />
+            Receipts
           </Link>
-          <h1 className="text-3xl font-semibold tracking-tight">New receipt</h1>
+          <h1 className="flex items-center gap-2 text-3xl font-semibold tracking-tight">
+            <ReceiptIcon
+              className="size-7 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            New receipt
+          </h1>
           <p className="text-muted-foreground">
             Select catalog products or add custom items, then save the sale.
           </p>

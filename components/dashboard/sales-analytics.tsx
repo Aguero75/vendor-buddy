@@ -1,8 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { useEffect, useState } from "react";
+import {
+  CalendarCheckIcon,
+  ChartLineUpIcon,
+  ClockIcon,
+  CreditCardIcon,
+  CurrencyDollarSimpleIcon,
+  EyeIcon,
+  EyeSlashIcon,
+  PackageIcon,
+  ReceiptIcon,
+  ShoppingCartIcon,
+} from "@phosphor-icons/react";
 import {
   Bar,
   BarChart,
@@ -50,7 +61,9 @@ function formatHour(hour: number) {
 }
 
 function rangeLabel(range: Range) {
-  return RANGE_OPTIONS.find((option) => option.value === range)?.label ?? "30 days";
+  return (
+    RANGE_OPTIONS.find((option) => option.value === range)?.label ?? "30 days"
+  );
 }
 
 function parseIsoDate(value: string) {
@@ -148,6 +161,7 @@ export function SalesAnalytics({
 }) {
   const [dayMetric, setDayMetric] = useState<"sales" | "revenue">("sales");
   const [summaryHidden, setSummaryHidden] = useState(false);
+  const [compactSellerAxis, setCompactSellerAxis] = useState(false);
   const activeDayRows = analytics.byDay.filter((day) => day[dayMetric] > 0);
   const bestDay = [...activeDayRows].sort(
     (a, b) => b[dayMetric] - a[dayMetric],
@@ -155,6 +169,15 @@ export function SalesAnalytics({
   const params = new URLSearchParams(query);
   params.delete("page");
   params.delete("view");
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+    const updateAxisWidth = () => setCompactSellerAxis(mediaQuery.matches);
+
+    updateAxisWidth();
+    mediaQuery.addEventListener("change", updateAxisWidth);
+    return () => mediaQuery.removeEventListener("change", updateAxisWidth);
+  }, []);
 
   function href(value: string) {
     const next = new URLSearchParams(params);
@@ -167,16 +190,33 @@ export function SalesAnalytics({
       label: "Revenue",
       value: naira(analytics.summary.revenue),
       change: analytics.summary.change?.revenue,
+      icon: (
+        <CurrencyDollarSimpleIcon
+          className="size-5"
+          weight="duotone"
+          aria-hidden="true"
+        />
+      ),
     },
     {
       label: "Paid sales",
       value: String(analytics.summary.sales),
       change: analytics.summary.change?.sales,
+      icon: (
+        <ReceiptIcon className="size-5" weight="duotone" aria-hidden="true" />
+      ),
     },
     {
       label: "Average order",
       value: naira(analytics.summary.aov),
       change: analytics.summary.change?.aov,
+      icon: (
+        <ShoppingCartIcon
+          className="size-5"
+          weight="duotone"
+          aria-hidden="true"
+        />
+      ),
     },
   ];
 
@@ -188,8 +228,13 @@ export function SalesAnalytics({
           <div className="flex items-center gap-2">
             <h2
               id="analytics-heading"
-              className="text-2xl font-semibold tracking-tight"
+              className="flex items-center gap-2 text-2xl font-semibold tracking-tight"
             >
+              <ChartLineUpIcon
+                className="size-6 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
               Sales overview
             </h2>
             <button
@@ -209,9 +254,9 @@ export function SalesAnalytics({
               className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               {summaryHidden ? (
-                <Eye className="size-4" aria-hidden="true" />
+                <EyeIcon className="size-4" aria-hidden="true" />
               ) : (
-                <EyeOff className="size-4" aria-hidden="true" />
+                <EyeSlashIcon className="size-4" aria-hidden="true" />
               )}
             </button>
           </div>
@@ -244,7 +289,12 @@ export function SalesAnalytics({
             key={card.label}
             className="rounded-xl border border-border bg-card p-4"
           >
-            <p className="text-sm text-muted-foreground">{card.label}</p>
+            <div className="flex items-start justify-between gap-3">
+              <p className="text-sm text-muted-foreground">{card.label}</p>
+              <span className="rounded-lg bg-primary/10 p-2 text-primary">
+                {card.icon}
+              </span>
+            </div>
             <p className="mt-1 text-2xl font-semibold" aria-live="polite">
               {summaryHidden ? "********" : card.value}
             </p>
@@ -272,7 +322,14 @@ export function SalesAnalytics({
       <div className="grid gap-5 lg:grid-cols-2">
         <article className="min-w-0 overflow-hidden rounded-xl border border-border bg-card p-5 sm:p-6">
           <div>
-            <h3 className="font-semibold">Daily revenue</h3>
+            <h3 className="flex items-center gap-2 font-semibold">
+              <ChartLineUpIcon
+                className="size-5 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
+              Daily revenue
+            </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Paid sales by day · {rangeLabel(range).toLowerCase()}
             </p>
@@ -289,48 +346,55 @@ export function SalesAnalytics({
                   margin={{ top: 8, right: 4, left: 0, bottom: 0 }}
                   barCategoryGap="18%"
                 >
-                <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                <XAxis
-                  dataKey="date"
-                  tickFormatter={formatDailyTick}
-                  interval={Math.max(
-                    0,
-                    Math.ceil(analytics.dailyRevenue.length / 5) - 1,
-                  )}
-                  tickLine={false}
-                  axisLine={false}
-                  tick={{ fontSize: 10 }}
-                  minTickGap={4}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={formatCompactNaira}
-                  width={54}
-                  tick={{ fontSize: 10 }}
-                />
-                <Tooltip
-                  labelFormatter={(label) => formatFullDate(String(label))}
-                  formatter={(value) => [
-                    formatRevenue(Number(value)),
-                    "Revenue",
-                  ]}
-                />
-                <Bar
-                  dataKey="revenue"
-                  name="Revenue"
-                  fill="var(--primary)"
-                  radius={[4, 4, 0, 0]}
-                />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickFormatter={formatDailyTick}
+                    interval={Math.max(
+                      0,
+                      Math.ceil(analytics.dailyRevenue.length / 5) - 1,
+                    )}
+                    tickLine={false}
+                    axisLine={false}
+                    tick={{ fontSize: 10 }}
+                    minTickGap={4}
+                  />
+                  <YAxis
+                    tickLine={false}
+                    axisLine={false}
+                    tickFormatter={formatCompactNaira}
+                    width={54}
+                    tick={{ fontSize: 10 }}
+                  />
+                  <Tooltip
+                    labelFormatter={(label) => formatFullDate(String(label))}
+                    formatter={(value) => [
+                      formatRevenue(Number(value)),
+                      "Revenue",
+                    ]}
+                  />
+                  <Bar
+                    dataKey="revenue"
+                    name="Revenue"
+                    fill="var(--primary)"
+                    radius={[4, 4, 0, 0]}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </div>
           )}
         </article>
 
-        <article className="rounded-xl border border-border bg-card p-5 sm:p-6">
+        <article className="min-w-0 rounded-xl border border-border bg-card p-5 sm:p-6">
           <div>
-            <h3 className="font-semibold">Top-selling products</h3>
+            <h3 className="flex items-center gap-2 font-semibold">
+              <PackageIcon
+                className="size-5 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
+              Top-selling products
+            </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               Units sold in {rangeLabel(range).toLowerCase()}
             </p>
@@ -340,7 +404,7 @@ export function SalesAnalytics({
               No receipt items to chart yet.
             </div>
           ) : (
-            <div className="mt-4 h-64 w-full">
+            <div className="mt-4 h-64 w-full min-w-0">
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart
                   data={analytics.bestSellers}
@@ -357,7 +421,7 @@ export function SalesAnalytics({
                   <YAxis
                     type="category"
                     dataKey="name"
-                    width={140}
+                    width={compactSellerAxis ? 48 : 140}
                     tickLine={false}
                     axisLine={false}
                     tick={BestSellerTick}
@@ -382,7 +446,14 @@ export function SalesAnalytics({
       <div className="grid gap-5 lg:grid-cols-3">
         <article className="rounded-xl border border-border bg-card p-5">
           <div className="flex items-center justify-between gap-2">
-            <h3 className="font-semibold">Best sales days</h3>
+            <h3 className="flex items-center gap-2 font-semibold">
+              <CalendarCheckIcon
+                className="size-5 text-primary"
+                weight="duotone"
+                aria-hidden="true"
+              />
+              Best sales days
+            </h3>
             <label>
               <span className="sr-only">Measure best sales days by</span>
               <select
@@ -458,7 +529,14 @@ export function SalesAnalytics({
         </article>
 
         <article className="min-w-0 overflow-hidden rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold">Sales by hour</h3>
+          <h3 className="flex items-center gap-2 font-semibold">
+            <ClockIcon
+              className="size-5 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            Sales by hour
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Lagos time · all 24 hours
           </p>
@@ -515,7 +593,14 @@ export function SalesAnalytics({
         </article>
 
         <article className="rounded-xl border border-border bg-card p-5">
-          <h3 className="font-semibold">Payment methods</h3>
+          <h3 className="flex items-center gap-2 font-semibold">
+            <CreditCardIcon
+              className="size-5 text-primary"
+              weight="duotone"
+              aria-hidden="true"
+            />
+            Payment methods
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             Revenue by payment method
           </p>
@@ -545,7 +630,9 @@ export function SalesAnalytics({
                   <Tooltip
                     formatter={(value) => [naira(Number(value)), "Revenue"]}
                     labelFormatter={(method) =>
-                      String(method).toLowerCase().replace(/^./, (s) => s.toUpperCase())
+                      String(method)
+                        .toLowerCase()
+                        .replace(/^./, (s) => s.toUpperCase())
                     }
                   />
                 </PieChart>
@@ -563,7 +650,9 @@ export function SalesAnalytics({
                     className="size-2 rounded-full"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
                   />
-                  {row.method.toLowerCase().replace(/^./, (s) => s.toUpperCase())}
+                  {row.method
+                    .toLowerCase()
+                    .replace(/^./, (s) => s.toUpperCase())}
                 </span>
                 <span>{naira(row.revenue)}</span>
               </li>
@@ -602,7 +691,10 @@ export function SalesAnalytics({
               </thead>
               <tbody>
                 {analytics.customers.top.map((customer) => (
-                  <tr key={customer.customer} className="border-t border-border">
+                  <tr
+                    key={customer.customer}
+                    className="border-t border-border"
+                  >
                     <td className="py-2">{customer.customer}</td>
                     <td className="py-2">{customer.orders}</td>
                     <td className="py-2 text-right">{naira(customer.total)}</td>

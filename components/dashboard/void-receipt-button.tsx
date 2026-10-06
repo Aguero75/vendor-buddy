@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { XIcon } from "@phosphor-icons/react";
 import { toast } from "react-toastify";
 
 import {
@@ -66,7 +66,7 @@ export function VoidReceiptButton({
         onClick={() => setOpen(true)}
         className="inline-flex size-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors hover:border-destructive/40 hover:bg-destructive/5 hover:text-destructive"
       >
-        <X className="size-4" />
+        <XIcon className="size-4" weight="bold" aria-hidden="true" />
       </button>
       {open ? (
         <div

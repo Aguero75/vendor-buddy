@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRightIcon, WarningCircleIcon } from "@phosphor-icons/react/ssr";
 
 type AlertProduct = { id: string; name: string; stock: number | null };
 
@@ -12,7 +13,15 @@ export function StockAlertsCard({ alerts }: { alerts: AlertProduct[] }) {
     >
       <div className="flex items-center justify-between gap-3">
         <div>
-          <h2 id="stock-alerts-heading" className="font-semibold">
+          <h2
+            id="stock-alerts-heading"
+            className="flex items-center gap-2 font-semibold"
+          >
+            <WarningCircleIcon
+              className="size-5 text-amber-700"
+              weight="duotone"
+              aria-hidden="true"
+            />
             Restock soon
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -21,9 +30,10 @@ export function StockAlertsCard({ alerts }: { alerts: AlertProduct[] }) {
         </div>
         <Link
           href="/dashboard/products"
-          className="shrink-0 text-sm font-medium text-primary hover:underline"
+          className="inline-flex shrink-0 items-center gap-1 text-sm font-medium text-primary hover:underline"
         >
           Manage products
+          <ArrowRightIcon className="size-4" aria-hidden="true" />
         </Link>
       </div>
       <ul className="mt-4 divide-y divide-border">

@@ -22,9 +22,30 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Vendor Buddy",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000",
+  ),
+  title: {
+    default: "Vendor Buddy",
+    template: "%s | Vendor Buddy",
+  },
   description:
-    "A simple storefront for small vendors with eye-catching designs and analytics.",
+    "Discover products and shop directly from independent local businesses.",
+  applicationName: "Vendor Buddy",
+  openGraph: {
+    type: "website",
+    locale: "en_NG",
+    siteName: "Vendor Buddy",
+    title: "Vendor Buddy",
+    description:
+      "Discover products and shop directly from independent local businesses.",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vendor Buddy",
+    description:
+      "Discover products and shop directly from independent local businesses.",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

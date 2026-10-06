@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
+import { CheckCircleIcon } from "@phosphor-icons/react";
 
 import { markReceiptReviewed } from "@/lib/actions/receipt-security";
 
@@ -25,8 +26,13 @@ export function MarkReviewedButton({ receiptId }: { receiptId: string }) {
           router.refresh();
         });
       }}
-      className="h-9 rounded-lg border border-amber-300 px-3 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50"
+      className="inline-flex h-9 items-center gap-2 rounded-lg border border-amber-300 px-3 text-sm font-medium text-amber-900 transition-colors hover:bg-amber-100 disabled:opacity-50"
     >
+      <CheckCircleIcon
+        className="size-4"
+        weight="duotone"
+        aria-hidden="true"
+      />
       {pending ? "Saving…" : "Mark reviewed"}
     </button>
   );
