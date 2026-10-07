@@ -29,7 +29,7 @@ export default function NotFound() {
                 href="/"
                 className="inline-flex h-11 items-center justify-center rounded-lg bg-primary px-5 text-sm font-bold text-primary-foreground transition-transform hover:-translate-y-0.5"
               >
-                Back to the storefront
+                Back to the store
               </Link>
             </div>
           </section>
