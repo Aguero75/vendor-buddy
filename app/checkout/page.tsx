@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { CheckoutForm } from "@/components/storefront/checkout-form";
+import { TawkChat } from "@/components/storefront/tawk-chat";
 import { getNgnPerUsd } from "@/lib/fx";
 import { verifyAndMarkReceiptPaid } from "@/lib/paystack";
 import { prisma } from "@/lib/prisma";
@@ -58,32 +59,35 @@ export default async function CheckoutPage({
   }
 
   return (
-    <main className="min-h-screen px-5 py-10 sm:px-8 sm:py-14">
-      <div className="mx-auto max-w-2xl space-y-8">
-        <header className="space-y-3">
-          <Link
-            href="/"
-            className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-          >
-            <span aria-hidden="true" className="text-base leading-none">
-              ←
-            </span>
-            Back to {vendor?.businessName ?? "store"}
-          </Link>
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-            Secure checkout
-          </p>
-          <h1 className="font-display text-4xl leading-tight">Your order</h1>
-        </header>
+    <>
+      <main className="min-h-screen px-5 py-10 sm:px-8 sm:py-14">
+        <div className="mx-auto max-w-2xl space-y-8">
+          <header className="space-y-3">
+            <Link
+              href="/"
+              className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-card px-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <span aria-hidden="true" className="text-base leading-none">
+                ←
+              </span>
+              Back to {vendor?.businessName ?? "store"}
+            </Link>
+            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-muted-foreground">
+              Secure checkout
+            </p>
+            <h1 className="font-display text-4xl leading-tight">Your order</h1>
+          </header>
 
-        <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8">
-          <CheckoutForm
-            failed={failed}
-            cryptoAvailable={cryptoAvailable}
-            cryptoFxRate={cryptoFxRate}
-          />
-        </section>
-      </div>
-    </main>
+          <section className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-8">
+            <CheckoutForm
+              failed={failed}
+              cryptoAvailable={cryptoAvailable}
+              cryptoFxRate={cryptoFxRate}
+            />
+          </section>
+        </div>
+      </main>
+      <TawkChat />
+    </>
   );
 }

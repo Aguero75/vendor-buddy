@@ -92,8 +92,14 @@ The required variable names are listed in `.env.example`:
 | `UPLOADTHING_TOKEN`                 | UploadThing server token             |
 | `PAYSTACK_SECRET_KEY`               | Paystack server-side API key         |
 | `NEXT_PUBLIC_SITE_URL`              | Public base URL for payment callbacks, canonical metadata, and the sitemap |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY`    | Cloudflare Turnstile site key for the storefront booking request form |
+| `TURNSTILE_SECRET_KEY`              | Server-only Turnstile secret used to verify booking form submissions |
+| `NEXT_PUBLIC_TAWK_PROPERTY_ID`      | tawk.to property ID for storefront chat support |
+| `NEXT_PUBLIC_TAWK_WIDGET_ID`        | tawk.to widget ID (usually `default`) |
 
 Set `ADMIN_CLERK_USER_ID` in `.env.local` to the Clerk user ID (`user_...`) or a verified email address on the admin's Clerk account, then restart the dev server. Do not put this setting only in `.env.template` or `.env.example`; Next.js does not load those template files. When the setting is not set, the first Clerk user is treated as the admin. After an account exists, the sign-up route redirects to sign-in and the sign-in screen does not offer registration. Successful sign-in opens the dashboard; non-admin accounts are redirected to the storefront.
+
+Create a Turnstile widget in Cloudflare and put its site key and secret in `.env.local` and your deployment environment. Booking requests are rejected unless Turnstile validation succeeds. Add the property and widget IDs from your tawk.to widget settings to enable chat; the chat launcher is positioned bottom-left to keep the bottom-right cart button unobstructed. Restart the app after changing environment variables.
 
 ## Useful Commands
 

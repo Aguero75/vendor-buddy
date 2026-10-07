@@ -1,20 +1,31 @@
 "use client";
 
 import { CalendarDays, CheckCircle2, Send } from "lucide-react";
-import { useRef, useState, useTransition } from "react";
+import { useCallback, useRef, useState, useTransition } from "react";
 
 import { sendBookingRequest } from "@/lib/actions/bookings";
+import { TurnstileWidget } from "@/components/storefront/turnstile-widget";
 
 export function BookingRequestForm() {
   const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState("");
   const [sent, setSent] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState("");
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [isPending, startTransition] = useTransition();
+  const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY?.trim();
+
+  const handleTurnstileTokenChange = useCallback((token: string) => {
+    setTurnstileToken(token);
+  }, []);
 
   function handleSubmit(formData: FormData) {
     setMessage("");
     startTransition(async () => {
       const result = await sendBookingRequest(formData);
+
+      setTurnstileToken("");
+      setTurnstileResetKey((key) => key + 1);
 
       if (!result.ok) {
         setMessage(result.message);
@@ -77,6 +88,11 @@ export function BookingRequestForm() {
             action={handleSubmit}
             className="grid gap-5 sm:grid-cols-2"
           >
+            <input
+              type="hidden"
+              name="turnstileToken"
+              value={turnstileToken}
+            />
             <label className="space-y-2">
               <span className="text-sm font-medium">Your name</span>
               <input
@@ -136,6 +152,25 @@ export function BookingRequestForm() {
                 Up to 1,000 characters.
               </span>
             </label>
+            <div className="space-y-2 sm:col-span-2">
+              {turnstileSiteKey ? (
+                <>
+                  <TurnstileWidget
+                    key={turnstileResetKey}
+                    siteKey={turnstileSiteKey}
+                    onTokenChange={handleTurnstileTokenChange}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Complete the security check before sending your request.
+                  </p>
+                </>
+              ) : (
+                <p className="text-sm text-destructive" role="alert">
+                  The security check is not configured, so booking requests
+                  cannot currently be sent.
+                </p>
+              )}
+            </div>
             {message ? (
               <p className="text-sm text-destructive sm:col-span-2" role="alert">
                 {message}
@@ -144,7 +179,7 @@ export function BookingRequestForm() {
             <div className="sm:col-span-2">
               <button
                 type="submit"
-                disabled={isPending}
+                disabled={isPending || !turnstileSiteKey || !turnstileToken}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Send className="size-4" aria-hidden="true" />

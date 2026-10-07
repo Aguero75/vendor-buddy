@@ -5,6 +5,7 @@ import { BookingRequestForm } from "@/components/storefront/booking-request-form
 import { ProductGrid } from "@/components/storefront/product-grid";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { TawkChat } from "@/components/storefront/tawk-chat";
 import Image from "next/image";
 import type { Metadata } from "next";
 import hero from "@/public/undraw_online-revenue_6egl.svg";
@@ -215,6 +216,7 @@ export default async function Home({
         tiktokUrl={vendor?.tiktokUrl}
       />
       <CartDrawer />
+      <TawkChat />
     </div>
   );
 }

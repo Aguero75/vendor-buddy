@@ -4,10 +4,59 @@ import { esc, sendEmail } from "@/lib/email";
 import { prisma } from "@/lib/prisma";
 
 type BookingResult = { ok: true } | { ok: false; message: string };
+type TurnstileVerification = "valid" | "invalid" | "unavailable";
 
 function readField(formData: FormData, name: string) {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
+}
+
+async function verifyTurnstileToken(
+  token: string,
+): Promise<TurnstileVerification> {
+  const secret = process.env.TURNSTILE_SECRET_KEY?.trim();
+  if (!secret) {
+    console.error("Turnstile verification is unavailable: secret key is missing.");
+    return "unavailable";
+  }
+  if (!token || token.length > 2048) {
+    return "invalid";
+  }
+
+  const verificationData = new FormData();
+  verificationData.set("secret", secret);
+  verificationData.set("response", token);
+
+  try {
+    const response = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        body: verificationData,
+        cache: "no-store",
+      },
+    );
+
+    if (!response.ok) {
+      console.error(
+        `Turnstile verification failed with HTTP ${response.status}.`,
+      );
+      return "unavailable";
+    }
+
+    const result: unknown = await response.json();
+    return (
+      typeof result === "object" &&
+      result !== null &&
+      "success" in result &&
+      result.success === true
+    )
+      ? "valid"
+      : "invalid";
+  } catch (error) {
+    console.error("Turnstile verification request failed.", error);
+    return "unavailable";
+  }
 }
 
 export async function sendBookingRequest(
@@ -45,6 +94,19 @@ export async function sendBookingRequest(
     return {
       ok: false,
       message: "Add a short description (up to 1,000 characters).",
+    };
+  }
+
+  const turnstileVerification = await verifyTurnstileToken(
+    readField(formData, "turnstileToken"),
+  );
+  if (turnstileVerification !== "valid") {
+    return {
+      ok: false,
+      message:
+        turnstileVerification === "unavailable"
+          ? "The security check is temporarily unavailable. Please try again later."
+          : "Please complete the security check and try again. If it keeps failing, contact the store directly.",
     };
   }
 
