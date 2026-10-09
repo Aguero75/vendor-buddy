@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 type TurnstileOptions = {
   sitekey: string;
   theme: "auto";
+  size: "normal" | "compact";
   callback: (token: string) => void;
   "expired-callback": () => void;
   "error-callback": () => void;
@@ -29,6 +30,7 @@ export function TurnstileWidget({
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const widgetSizeRef = useRef<TurnstileOptions["size"] | null>(null);
   const [scriptReady, setScriptReady] = useState(false);
 
   useEffect(() => {
@@ -36,18 +38,38 @@ export function TurnstileWidget({
       return;
     }
 
-    widgetIdRef.current = window.turnstile.render(containerRef.current, {
-      sitekey: siteKey,
-      theme: "auto",
-      callback: onTokenChange,
-      "expired-callback": () => onTokenChange(""),
-      "error-callback": () => onTokenChange(""),
-    });
+    const container = containerRef.current;
+    const turnstile = window.turnstile;
+    const renderWidget = () => {
+      const size = container.clientWidth < 300 ? "compact" : "normal";
+      if (widgetIdRef.current && widgetSizeRef.current === size) {
+        return;
+      }
+
+      if (widgetIdRef.current) {
+        onTokenChange("");
+        turnstile.remove(widgetIdRef.current);
+      }
+      widgetIdRef.current = turnstile.render(container, {
+        sitekey: siteKey,
+        theme: "auto",
+        size,
+        callback: onTokenChange,
+        "expired-callback": () => onTokenChange(""),
+        "error-callback": () => onTokenChange(""),
+      });
+      widgetSizeRef.current = size;
+    };
+    const observer = new ResizeObserver(renderWidget);
+    observer.observe(container);
+    renderWidget();
 
     return () => {
-      if (widgetIdRef.current && window.turnstile) {
-        window.turnstile.remove(widgetIdRef.current);
+      observer.disconnect();
+      if (widgetIdRef.current) {
+        turnstile.remove(widgetIdRef.current);
         widgetIdRef.current = null;
+        widgetSizeRef.current = null;
       }
     };
   }, [onTokenChange, scriptReady, siteKey]);

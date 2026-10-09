@@ -40,15 +40,15 @@ export function BookingRequestForm() {
   return (
     <section
       aria-labelledby="booking-heading"
-      className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-9"
+      className="relative overflow-hidden rounded-3xl border border-border bg-card p-4 shadow-sm sm:p-9"
     >
       <div
         className="pointer-events-none absolute -right-14 -top-20 size-56 rounded-full bg-accent/30 blur-3xl"
         aria-hidden="true"
       />
       <div className="relative mx-auto max-w-3xl">
-        <div className="mb-7 flex items-start gap-4">
-          <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+        <div className="mb-6 flex items-start gap-3 sm:mb-7 sm:gap-4">
+          <span className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary sm:size-11">
             <CalendarDays className="size-5" aria-hidden="true" />
           </span>
           <div>
@@ -86,14 +86,14 @@ export function BookingRequestForm() {
           <form
             ref={formRef}
             action={handleSubmit}
-            className="grid gap-5 sm:grid-cols-2"
+            className="grid min-w-0 gap-4 sm:gap-5 md:grid-cols-2"
           >
             <input
               type="hidden"
               name="turnstileToken"
               value={turnstileToken}
             />
-            <label className="space-y-2">
+            <label className="block min-w-0 space-y-2">
               <span className="text-sm font-medium">Your name</span>
               <input
                 required
@@ -105,7 +105,7 @@ export function BookingRequestForm() {
                 className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
               />
             </label>
-            <label className="space-y-2">
+            <label className="block min-w-0 space-y-2">
               <span className="text-sm font-medium">Email address</span>
               <input
                 required
@@ -117,7 +117,7 @@ export function BookingRequestForm() {
                 className="h-11 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
               />
             </label>
-            <label className="space-y-2">
+            <label className="block min-w-0 space-y-2">
               <span className="text-sm font-medium">Event date</span>
               <input
                 required
@@ -138,7 +138,7 @@ export function BookingRequestForm() {
                 autoComplete="off"
               />
             </label>
-            <label className="space-y-2 sm:col-span-2">
+            <label className="block min-w-0 space-y-2 md:col-span-2">
               <span className="text-sm font-medium">A little about the event</span>
               <textarea
                 required
@@ -146,13 +146,13 @@ export function BookingRequestForm() {
                 maxLength={1000}
                 rows={4}
                 placeholder="What are you celebrating, and what would you like us to know?"
-                className="w-full resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
+                className="min-w-0 w-full resize-y rounded-lg border border-input bg-background px-3 py-2.5 text-sm outline-none transition focus:border-ring focus:ring-3 focus:ring-ring/20"
               />
               <span className="block text-xs text-muted-foreground">
                 Up to 1,000 characters.
               </span>
             </label>
-            <div className="space-y-2 sm:col-span-2">
+            <div className="min-w-0 space-y-2 md:col-span-2">
               {turnstileSiteKey ? (
                 <>
                   <TurnstileWidget
@@ -172,15 +172,15 @@ export function BookingRequestForm() {
               )}
             </div>
             {message ? (
-              <p className="text-sm text-destructive sm:col-span-2" role="alert">
+              <p className="text-sm text-destructive md:col-span-2" role="alert">
                 {message}
               </p>
             ) : null}
-            <div className="sm:col-span-2">
+            <div className="md:col-span-2">
               <button
                 type="submit"
                 disabled={isPending || !turnstileSiteKey || !turnstileToken}
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 <Send className="size-4" aria-hidden="true" />
                 {isPending ? "Sending request…" : "Send booking request"}
